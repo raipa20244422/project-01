@@ -1,0 +1,10 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '9777:9777'
+    environment:
+      - NODE_ENV=production
+
