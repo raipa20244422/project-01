@@ -4,10 +4,6 @@ import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { updateOrganizationSchedule } from '@/actions/update-organization-schedule'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-
 const schema = z.object({
   openingTime: z.string(),
   closingTime: z.string(),
@@ -21,9 +17,7 @@ export default function Account() {
     resolver: zodResolver(schema),
   })
 
-  const onSubmit = async (data: SchemaOrganizationSchedule) => {
-    const { code } = await updateOrganizationSchedule(data)
-  }
+  const onSubmit = async (data: SchemaOrganizationSchedule) => {}
 
   return (
     <main className='flex h-full w-full max-w-[690px] flex-col space-y-4'>
