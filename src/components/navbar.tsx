@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Organization } from '@/http/get-organization'
 
-import Logo from '../../assets/logoo.png'
+import Logo from '../assets/logoo.png'
 import Name from '../assets/name.png'
 
 export function Sidebar({ organization }: { organization: Organization }) {
