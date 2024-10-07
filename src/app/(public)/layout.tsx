@@ -1,7 +1,7 @@
 import Image from 'next/image'
 
-import Logo from '../../../public/logo.png'
-import Name from '../../../public/name.png'
+import Logo from '../../assets/logo.png'
+import Name from '../../assets/name.png'
 
 export default function AuthLayout({
   children,

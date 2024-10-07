@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Organization } from '@/http/get-organization'
 
-import Logo from '../../public/logo.png'
-import Name from '../../public/name.png'
+import Logo from '../assets/logo.png'
+import Name from '../assets/name.png'
 
 export function Sidebar({ organization }: { organization: Organization }) {
   const router = useRouter()
