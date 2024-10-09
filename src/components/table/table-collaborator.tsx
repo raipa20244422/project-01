@@ -1,7 +1,4 @@
-'use client'
-
-import { useSearchParams } from 'next/navigation'
-
+import { getAllCollaboratorsByOrganization } from '@/actions/gt-organization-collaborator'
 import {
   Table,
   TableBody,
@@ -10,29 +7,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatDate, formatReal } from '@/utils/format-all'
 
-import { EmptySales } from '../empty-table/empty-sales'
+import { EmptyCollaborator } from '../empty-table/empty-collaborator'
 import { Button } from '../ui/button'
 
-export type ResponseSales = {
-  saleId: string
-  date: Date
-  totalAmount: number
-  customerName: string
+export type ResponseCollaborator = {
+  id: string
+  name: string
 }
 
-export function TableCollaborator() {
-  const searchParams = useSearchParams()
+export async function TableCollaborator() {
+  const { collaborators } = await getAllCollaboratorsByOrganization()
 
-  const order = searchParams.get('order')
-  const situation = searchParams.get('situation')
-  const search = searchParams.get('search')
-
-  let sales: ResponseSales[] = []
-
-  if (!sales || sales.length === 0) {
-    return <EmptySales />
+  if (!collaborators || collaborators.length === 0) {
+    return <EmptyCollaborator />
   }
 
   return (
@@ -40,27 +28,15 @@ export function TableCollaborator() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-96'>Cliente</TableHead>
-            <TableHead className='w-20'>Valor</TableHead>
-            <TableHead className='w-20'>Data</TableHead>
-            <TableHead className='w-20'>Status</TableHead>
+            <TableHead className='w-96'>Nome</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sales.map((current, index) => (
+          {collaborators.map((current, index) => (
             <TableRow key={index}>
               <TableCell className='h-5 w-96 text-xs font-medium text-gray-500'>
-                {current.customerName}
-              </TableCell>
-              <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                {formatReal(Number(current.totalAmount))}
-              </TableCell>
-              <TableCell className='h-5 w-20 text-nowrap text-xs text-gray-500'>
-                {formatDate(current.date)}
-              </TableCell>
-              <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                Fechada
+                {current.name}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
                 <Button

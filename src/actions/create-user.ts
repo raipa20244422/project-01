@@ -19,12 +19,13 @@ export async function createUser(data: UserFormData) {
         name: data.name,
         email: data.email,
         password: hashedPassword,
+        approved: true,
+        isActive: true,
       },
     })
 
     return { success: true, user: newUser }
   } catch (error) {
-    console.error('Error creating user:', error)
     return { success: false, error: 'Error creating user' }
   }
 }

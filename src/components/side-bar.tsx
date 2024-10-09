@@ -37,15 +37,15 @@ const routes = [
     icon: <UsersRound strokeWidth={1.5} />,
   },
   {
-    name: 'metas',
-    path: '/metas',
-    label: 'Metas',
+    name: 'canais de vendas',
+    path: '/canais',
+    label: 'Canais',
     icon: <TrendingUp strokeWidth={1.5} />,
   },
   {
-    name: 'faturamento',
-    path: '/faturamento',
-    label: 'Faturamento',
+    name: 'investimentos',
+    path: '/investimentos',
+    label: 'Investimentos',
     icon: <DollarSign strokeWidth={1.5} />,
   },
 ]

@@ -12,58 +12,79 @@ model User {
   name          String
   email         String         @unique
   password      String
+  isActive      Boolean
   createdAt     DateTime       @default(now())
   organizations Organization[]
-  leads         Lead[]
-  sales         Sale[]
   approved      Boolean        @default(false)
 }
 
 model Organization {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  owner     User     @relation(fields: [ownerId], references: [id])
-  ownerId   Int
-  leads     Lead[]
-  sales     Sale[]
-  createdAt DateTime @default(now())
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  isActive      Boolean
+  owner         User           @relation(fields: [ownerId], references: [id])
+  ownerId       Int
+  leads         Lead[]
+  sales         Sale[]
+  collaborators Collaborator[]
+  createdAt     DateTime       @default(now())
+  approved      Boolean        @default(false)
+  Channel       Channel[]
+  Investment    Investment[]
 }
 
 model Lead {
   id             Int          @id @default(autoincrement())
   name           String
-  leadType       LeadType     @relation(fields: [leadTypeId], references: [id])
-  leadTypeId     Int
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId Int
-  user           User         @relation(fields: [userId], references: [id])
-  userId         Int
   createdAt      DateTime     @default(now())
   sales          Sale[]
-}
-
-model LeadType {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  leads     Lead[]
-  createdAt DateTime @default(now())
 }
 
 model Sale {
   id             Int          @id @default(autoincrement())
   amount         Float
+  saleDate       DateTime
   createdAt      DateTime     @default(now())
   lead           Lead         @relation(fields: [leadId], references: [id])
   leadId         Int
-  user           User         @relation(fields: [userId], references: [id])
-  userId         Int
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId Int
+  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
+  collaboratorId Int
 }
 
-enum Profile {
-  ADMIN
-  USER
+model Collaborator {
+  id             Int          @id @default(autoincrement())
+  name           String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  createdAt      DateTime     @default(now())
+  Sale           Sale[]
+}
+
+model Investment {
+  id             Int           @id @default(autoincrement())
+  amount         Float
+  profit         Float
+  month          DateTime
+  channel        Channel       @relation(fields: [channelId], references: [id])
+  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?
+  channelId      Int
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Channel {
+  id             Int           @id @default(autoincrement())
+  name           String        @unique
+  investments    Investment[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?
 }

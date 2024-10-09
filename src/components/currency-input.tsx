@@ -1,9 +1,18 @@
+'use client'
+
 import React from 'react'
-import { NumericFormat, type NumericFormatProps } from 'react-number-format'
+import {
+  NumberFormatValues,
+  NumericFormat,
+  NumericFormatProps,
+} from 'react-number-format'
 
 import { Input } from './ui/input'
 
-export interface CurrencyInputProps extends NumericFormatProps {}
+export interface CurrencyInputProps
+  extends Omit<NumericFormatProps, 'onValueChange'> {
+  onValueChange?: (value: number) => void
+}
 
 export const CurrencyInput = React.forwardRef<
   HTMLInputElement,
@@ -15,6 +24,7 @@ export const CurrencyInput = React.forwardRef<
       decimalSeparator = ',',
       decimalScale = 2,
       fixedDecimalScale = true,
+      onValueChange,
       ...props
     },
     ref,
@@ -27,6 +37,11 @@ export const CurrencyInput = React.forwardRef<
         fixedDecimalScale={fixedDecimalScale}
         customInput={Input}
         getInputRef={ref}
+        onValueChange={(values: NumberFormatValues) => {
+          if (onValueChange) {
+            onValueChange(Number(values.floatValue))
+          }
+        }}
         {...props}
       />
     )

@@ -1,11 +1,8 @@
-'use client'
-
-import { deleteCookie } from 'cookies-next'
 import { Bell, CircleHelp, CircleUserRound, LogOut } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
+import { getCurrentOrganization } from '@/actions/get-organization'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,16 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Organization } from '@/http/get-organization'
 
 import Logo from '../assets/logoo.png'
 import Name from '../assets/name.png'
 
-export function Sidebar({ organization }: { organization: Organization }) {
-  const router = useRouter()
-  const signOut = () => {
-    deleteCookie('auth_store')
-    router.refresh()
+export async function Sidebar() {
+  const data = await getCurrentOrganization()
+
+  if (!data) {
+    return
   }
 
   return (
@@ -51,10 +47,10 @@ export function Sidebar({ organization }: { organization: Organization }) {
           <DropdownMenuContent align='end'>
             <div className='flex flex-col space-y-2 p-2'>
               <p className='line-clamp-1 max-w-48 text-sm text-zinc-500'>
-                {organization.organization.name}
+                {data.organization.name}
               </p>
               <p className='line-clamp-1 max-w-48 text-xs'>
-                {organization.organization.email}
+                {data.organization.email}
               </p>
             </div>
             <DropdownMenuSeparator />
@@ -67,10 +63,7 @@ export function Sidebar({ organization }: { organization: Organization }) {
                 <span>Informações da conta</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={signOut}
-              className='space-x-2'
-            >
+            <DropdownMenuItem className='space-x-2'>
               <LogOut className='h-5 w-5 text-zinc-600' />
               <span>Sair</span>
             </DropdownMenuItem>

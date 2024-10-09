@@ -1,39 +1,49 @@
 'use server'
 
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 
 import { SignInSchema } from '@/lib/zod/sign-in-schema'
-import { api } from '@/service/api-client'
+import { prisma } from '@/service/prisma-client'
 
-interface SignInWithPasswordResponse {
-  code: number
-  token: string
-  refreshToken: string
-}
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
 export async function signInWithCredentials(schema: SignInSchema) {
   try {
-    const response = await api.post<SignInWithPasswordResponse>(
-      'organization/sessions/password',
-      schema,
-    )
+    const { email, password } = schema
 
-    const { token } = response.data
+    const organization = await prisma.organization.findUnique({
+      where: {
+        email,
+      },
+    })
 
-    if (response.status === 201) {
-      cookies().set('auth_store', token, {
-        path: '/',
-        maxAge: 60 * 60 * 24,
-        secure: false,
-      })
+    if (!organization) {
+      return { code: 401, error: 'Invalid credentials' }
     }
 
-    return { code: response.status }
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      organization.password,
+    )
+    if (!isPasswordValid) {
+      return { code: 401, error: 'Invalid credentials' }
+    }
+
+    const token = jwt.sign(
+      { organizationId: organization.id, email: organization.email },
+      JWT_SECRET,
+      { expiresIn: '6h' },
+    )
+
+    cookies().set('token', token, { httpOnly: false })
+
+    return { code: 200, message: 'Sign-in successful' }
   } catch (error: any) {
-    // Lida com erros de requisição
     return {
-      code: error.response?.status || 500,
-      error: error.response?.data || 'Erro interno',
+      code: 500,
+      error: 'Internal error occurred during sign-in',
     }
   }
 }

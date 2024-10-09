@@ -1,28 +1,32 @@
 'use server'
 
-import { SignUpSchema } from '@/lib/zod/sign-up-schema'
-import { api } from '@/service/api-client'
+import bcrypt from 'bcrypt'
 
-interface Response {
-  message: string
-}
+import { SignUpSchema } from '@/lib/zod/sign-up-schema'
+import { prisma } from '@/service/prisma-client'
 
 export async function createAccountOrganization(schema: SignUpSchema) {
   const { confirmPassword, ...props } = schema
 
   try {
-    const { data, status } = await api.post<Response>(
-      `create-organization-account`,
-      props,
-    )
+    const hashedPassword = await bcrypt.hash(props.password, 10)
 
-    return { code: status, message: data.message }
+    const organization = await prisma.organization.create({
+      data: {
+        ...props,
+        password: hashedPassword,
+        isActive: true,
+        approved: false,
+        ownerId: 1,
+      },
+    })
+
+    return { code: 201, message: 'Account created successfully' }
   } catch (error: any) {
-    const status = error.response?.status || 500
-    const errorMessage = error.response?.data?.message || 'Erro interno'
-
+    const errorMessage =
+      error.message || 'Internal error occurred during sign-up'
     return {
-      code: status,
+      code: 500,
       message: errorMessage,
     }
   }

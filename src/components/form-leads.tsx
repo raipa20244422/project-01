@@ -1,6 +1,10 @@
+'use client'
+
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { createLeadAction } from '@/actions/create-lead'
 import {
   Dialog,
   DialogContent,
@@ -22,6 +26,8 @@ interface FormLeadsProps {
 }
 
 export function FormLeads({ create, id }: FormLeadsProps) {
+  const [isPending, startTransition] = useTransition()
+  const [isOpen, setOpen] = useState(false)
   const {
     register,
     handleSubmit,
@@ -31,17 +37,30 @@ export function FormLeads({ create, id }: FormLeadsProps) {
     resolver: zodResolver(leadSchema),
   })
 
-  const onSubmit = (data: LeadFormData) => {
+  const onSubmit = async (data: LeadFormData) => {
     if (create) {
-      console.log('Lead criado:', data)
+      startTransition(async () => {
+        const response = await createLeadAction(data)
+        // if (response.success) {
+        //   alert('Lead criado com sucesso!')
+        // } else {
+        //   alert(response.message || 'Erro ao criar lead')
+        // }
+
+        setOpen(false)
+        reset()
+      })
     } else {
-      console.log('Lead atualizado:', data)
+      setOpen(false)
+      reset()
     }
-    reset()
   }
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={setOpen}
+      open={isOpen}
+    >
       <DialogTrigger asChild>
         <Button
           type='button'
@@ -83,8 +102,15 @@ export function FormLeads({ create, id }: FormLeadsProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button type='submit'>
-              {create ? 'Salvar Lead' : 'Atualizar Lead'}
+            <Button
+              type='submit'
+              disabled={isPending}
+            >
+              {isPending
+                ? 'Salvando...'
+                : create
+                  ? 'Salvar Lead'
+                  : 'Atualizar Lead'}
             </Button>
           </DialogFooter>
         </form>

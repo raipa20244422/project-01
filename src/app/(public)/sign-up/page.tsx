@@ -4,23 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronRight, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { createAccountOrganization } from '@/actions/action-sign-up'
-import { InputFormatter } from '@/components/input-formatter'
 import { MessageError } from '@/components/message-erro'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { SignUpSchema, signUpSchema } from '@/lib/zod/sign-up-schema'
-import { formatCPFouCNPJ, formatPhone } from '@/utils/format-all'
 
 export default function SignUp() {
   const [isLoading, setLoading] = useState(false)

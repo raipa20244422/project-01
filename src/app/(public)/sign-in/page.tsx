@@ -26,7 +26,7 @@ export default function SignIn() {
   const onSubmit = async (data: SignInSchema) => {
     const { code, error } = await signInWithCredentials(data)
 
-    if (code !== 201) {
+    if (code !== 200) {
       return toast({
         title: 'Email ou senha incorreto.',
       })

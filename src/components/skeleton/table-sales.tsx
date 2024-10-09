@@ -16,9 +16,9 @@ export function SkeletonTableSales() {
         <TableHeader>
           <TableRow>
             <TableHead className='w-96'>Venda ID</TableHead>
+            <TableHead className='w-96'>Colaborador</TableHead>
             <TableHead className='w-20'>Valor</TableHead>
             <TableHead className='w-20'>Data</TableHead>
-            <TableHead className='w-20'>Status</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -28,7 +28,7 @@ export function SkeletonTableSales() {
               <TableCell className='w-96'>
                 <Skeleton className='h-7' />
               </TableCell>
-              <TableCell className='w-20'>
+              <TableCell className='w-96'>
                 <Skeleton className='h-7' />
               </TableCell>
               <TableCell className='w-20'>

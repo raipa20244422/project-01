@@ -11,7 +11,6 @@ export function EmptySales() {
             <TableHead className='w-96'>Venda ID</TableHead>
             <TableHead className='w-20'>Valor</TableHead>
             <TableHead className='w-20'>Data</TableHead>
-            <TableHead className='w-20'>Status</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
         </TableHeader>

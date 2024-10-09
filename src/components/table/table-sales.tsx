@@ -1,7 +1,4 @@
-'use client'
-
-import { useSearchParams } from 'next/navigation'
-
+import { getPaginatedSales } from '@/actions/get-paginated-sales'
 import {
   Table,
   TableBody,
@@ -15,21 +12,9 @@ import { formatDate, formatReal } from '@/utils/format-all'
 import { EmptySales } from '../empty-table/empty-sales'
 import { Button } from '../ui/button'
 
-export type ResponseSales = {
-  saleId: string
-  date: Date
-  totalAmount: number
-  customerName: string
-}
-
-export function TableSales() {
-  const searchParams = useSearchParams()
-
-  const order = searchParams.get('order')
-  const situation = searchParams.get('situation')
-  const search = searchParams.get('search')
-
-  let sales: ResponseSales[] = []
+export async function TableSales() {
+  const { currentPage, sales, totalPages, totalSales } =
+    await getPaginatedSales()
 
   if (!sales || sales.length === 0) {
     return <EmptySales />
@@ -40,10 +25,10 @@ export function TableSales() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-96'>Cliente</TableHead>
+            <TableHead className='w-96'>Venda ID</TableHead>
+            <TableHead className='w-96'>Colaborador</TableHead>
             <TableHead className='w-20'>Valor</TableHead>
             <TableHead className='w-20'>Data</TableHead>
-            <TableHead className='w-20'>Status</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -51,16 +36,16 @@ export function TableSales() {
           {sales.map((current, index) => (
             <TableRow key={index}>
               <TableCell className='h-5 w-96 text-xs font-medium text-gray-500'>
-                {current.customerName}
+                {current.id}
+              </TableCell>
+              <TableCell className='h-5 w-96 text-xs font-medium text-gray-500'>
+                {current.collaboratorName}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                {formatReal(Number(current.totalAmount))}
+                {formatReal(current.amount)}
               </TableCell>
               <TableCell className='h-5 w-20 text-nowrap text-xs text-gray-500'>
-                {formatDate(current.date)}
-              </TableCell>
-              <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                Fechada
+                {formatDate(current.saleDate)}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
                 <Button
