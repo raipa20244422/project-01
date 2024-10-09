@@ -13,6 +13,7 @@ import {
 
 import Logo from '../assets/logoo.png'
 import Name from '../assets/name.png'
+import { ButtonSignOut } from './button-sign-ou'
 
 export async function Sidebar() {
   const data = await getCurrentOrganization()
@@ -63,10 +64,7 @@ export async function Sidebar() {
                 <span>Informações da conta</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className='space-x-2'>
-              <LogOut className='h-5 w-5 text-zinc-600' />
-              <span>Sair</span>
-            </DropdownMenuItem>
+            <ButtonSignOut />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
