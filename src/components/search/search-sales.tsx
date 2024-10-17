@@ -6,6 +6,7 @@ import { useQueryState } from 'nuqs'
 import { Input } from '@/components/ui/input'
 
 import { FormSale } from '../form-sales'
+import { Button } from '../ui/button'
 
 export function SearchSales() {
   const [query, setQuery] = useQueryState('search', {
@@ -29,7 +30,14 @@ export function SearchSales() {
           />
         </div>
 
-        <FormSale create />
+        <FormSale create>
+          <Button
+            type='button'
+            className='text-white'
+          >
+            Adicionar Venda
+          </Button>
+        </FormSale>
       </form>
     </div>
   )

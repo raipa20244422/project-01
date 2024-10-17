@@ -10,6 +10,7 @@ import {
 import { formatDate, formatReal } from '@/utils/format-all'
 
 import { EmptySales } from '../empty-table/empty-sales'
+import { FormSale } from '../form-sales'
 import { Button } from '../ui/button'
 
 export async function TableSales() {
@@ -28,6 +29,8 @@ export async function TableSales() {
             <TableHead className='w-96'>Venda ID</TableHead>
             <TableHead className='w-96'>Colaborador</TableHead>
             <TableHead className='w-20'>Valor</TableHead>
+            <TableHead className='w-20'>Total de Vendas</TableHead>
+            <TableHead className='w-20'>Total de Produtos</TableHead>
             <TableHead className='w-20'>Data</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
@@ -44,16 +47,27 @@ export async function TableSales() {
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
                 {formatReal(current.amount)}
               </TableCell>
+              <TableCell className='h-5 w-20 text-xs text-gray-500'>
+                {formatReal(current.salesCount)}
+              </TableCell>
+              <TableCell className='h-5 w-20 text-xs text-gray-500'>
+                {formatReal(current.productsSold)}
+              </TableCell>
               <TableCell className='h-5 w-20 text-nowrap text-xs text-gray-500'>
                 {formatDate(current.saleDate)}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                <Button
-                  className='flex h-7 items-center justify-center'
-                  variant={'outline'}
+                <FormSale
+                  create={false}
+                  id={current.id}
                 >
-                  ...
-                </Button>
+                  <Button
+                    className='flex h-7 items-center justify-center'
+                    variant={'outline'}
+                  >
+                    ...
+                  </Button>
+                </FormSale>
               </TableCell>
             </TableRow>
           ))}

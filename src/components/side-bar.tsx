@@ -19,12 +19,6 @@ const routes = [
     icon: <House strokeWidth={1.5} />,
   },
   {
-    name: 'leads',
-    path: '/leads',
-    label: 'Leads',
-    icon: <AlignJustify strokeWidth={1.5} />,
-  },
-  {
     name: 'vendas',
     path: '/vendas',
     label: 'Vendas',

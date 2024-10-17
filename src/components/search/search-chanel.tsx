@@ -6,7 +6,7 @@ import { useQueryState } from 'nuqs'
 import { Input } from '@/components/ui/input'
 
 import { FormChannel } from '../form-channel'
-import { FormSale } from '../form-sales'
+import { Button } from '../ui/button'
 
 export function SearchChannel() {
   const [query, setQuery] = useQueryState('search', {
@@ -30,7 +30,14 @@ export function SearchChannel() {
           />
         </div>
 
-        <FormChannel create />
+        <FormChannel create>
+          <Button
+            type='button'
+            className='text-white'
+          >
+            Adicionar Colaborador
+          </Button>
+        </FormChannel>
       </form>
     </div>
   )

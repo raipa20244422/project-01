@@ -9,6 +9,8 @@ export function EmptyChannel() {
         <TableHeader>
           <TableRow>
             <TableHead className='w-96'>Nome</TableHead>
+            <TableHead className='w-96'>Numero de Leads</TableHead>
+            <TableHead className='w-96'>Data</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
         </TableHeader>

@@ -26,7 +26,6 @@ model Organization {
   isActive      Boolean
   owner         User           @relation(fields: [ownerId], references: [id])
   ownerId       Int
-  leads         Lead[]
   sales         Sale[]
   collaborators Collaborator[]
   createdAt     DateTime       @default(now())
@@ -35,26 +34,17 @@ model Organization {
   Investment    Investment[]
 }
 
-model Lead {
-  id             Int          @id @default(autoincrement())
-  name           String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId Int
-  createdAt      DateTime     @default(now())
-  sales          Sale[]
-}
-
 model Sale {
   id             Int          @id @default(autoincrement())
   amount         Float
   saleDate       DateTime
   createdAt      DateTime     @default(now())
-  lead           Lead         @relation(fields: [leadId], references: [id])
-  leadId         Int
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId Int
   collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
   collaboratorId Int
+  productsSold   Int
+  salesCount     Int
 }
 
 model Collaborator {
@@ -82,9 +72,11 @@ model Investment {
 model Channel {
   id             Int           @id @default(autoincrement())
   name           String        @unique
+  generateLeads  Float
+  channelDate    DateTime
   investments    Investment[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  Organization   Organization? @relation(fields: [organizationId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id])
   organizationId Int?
 }

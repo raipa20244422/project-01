@@ -30,6 +30,8 @@ export default function SignUp() {
 
   const onSubmit = async (data: SignUpSchema) => {
     const { code, message } = await createAccountOrganization(data)
+
+    console.log(message)
     if (message?.includes('e-mail already exists.')) {
       setError('email', { message: 'Email já esta em uso.' })
     }

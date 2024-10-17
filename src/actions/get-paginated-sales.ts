@@ -9,6 +9,8 @@ interface PaginatedSalesResponse {
     id: number
     saleDate: Date
     amount: number
+    productsSold: number
+    salesCount: number
     collaboratorName: string
   }[]
   totalSales: number
@@ -60,6 +62,8 @@ export async function getPaginatedSales(
         id: true,
         saleDate: true,
         amount: true,
+        productsSold: true,
+        salesCount: true,
         collaborator: {
           select: {
             name: true,
@@ -77,6 +81,8 @@ export async function getPaginatedSales(
       id: sale.id,
       saleDate: sale.saleDate,
       amount: sale.amount,
+      productsSold: sale.productsSold,
+      salesCount: sale.salesCount,
       collaboratorName: sale.collaborator.name,
     }))
 

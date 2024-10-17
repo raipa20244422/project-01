@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Channel" ALTER COLUMN "generateLeads" SET DATA TYPE DOUBLE PRECISION;

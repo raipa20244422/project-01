@@ -4,7 +4,6 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 
 import { Toaster } from '@/components/ui/toaster'
-import { Providers } from '@/provide'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,12 +21,10 @@ export default function RootLayout({
       lang='pt-br'
       suppressHydrationWarning
     >
-      <Providers>
-        <body className={`${inter.className} flex h-screen`}>
-          {children}
-          <Toaster />
-        </body>
-      </Providers>
+      <body className={`${inter.className} flex h-screen`}>
+        {children}
+        <Toaster />
+      </body>
     </html>
   )
 }

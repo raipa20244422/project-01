@@ -4,12 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { CalendarIcon } from 'lucide-react'
-import { useEffect, useState, useTransition } from 'react'
-import { useForm } from 'react-hook-form'
+import { ReactNode, useEffect, useMemo, useState, useTransition } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { createSaleAction } from '@/actions/create-sale'
-import { getAllLeadsByOrganization } from '@/actions/get-organization-lead'
+import {
+  createSaleAction,
+  getSaleById,
+  updateSaleAction,
+} from '@/actions/create-sale'
 import { getAllCollaboratorsByOrganization } from '@/actions/gt-organization-collaborator'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,20 +43,27 @@ const saleSchema = z.object({
   amount: z
     .number({ required_error: 'O valor da venda é obrigatório' })
     .min(0.01, 'O valor da venda é obrigatório'),
+  productsSold: z
+    .number({
+      required_error: 'A quantidade de produtos vendidos é obrigatória',
+    })
+    .min(1, 'Deve haver pelo menos 1 produto vendido'),
+  salesCount: z
+    .number({ required_error: 'A quantidade de vendas é obrigatória' })
+    .min(1, 'Deve haver pelo menos 1 venda'),
   saleDate: z.date({ required_error: 'A data da venda é obrigatória' }),
-  leadId: z.string({ required_error: 'O valor da venda é obrigatório' }),
-  collaboratorId: z.string({
-    required_error: 'O valor da venda é obrigatório',
-  }),
+  collaboratorId: z.string({ required_error: 'O colaborador é obrigatório' }),
 })
 
-type SaleFormData = z.infer<typeof saleSchema>
+export type SaleFormData = z.infer<typeof saleSchema>
 
 interface FormSaleProps {
   create: boolean
+  id?: number
+  children: ReactNode
 }
 
-export function FormSale({ create }: FormSaleProps) {
+export function FormSale({ create, id, children }: FormSaleProps) {
   const [isPending, startTransition] = useTransition()
   const [isOpen, setOpen] = useState(false)
   const [date, setDate] = useState<Date>()
@@ -73,23 +83,43 @@ export function FormSale({ create }: FormSaleProps) {
       }[]
     | undefined
   >([])
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date())
 
   const {
-    register,
     handleSubmit,
+    register,
     formState: { errors },
     reset,
     setValue,
+    control,
+    watch,
   } = useForm<SaleFormData>({
     resolver: zodResolver(saleSchema),
+    defaultValues: {},
   })
+
+  useMemo(async () => {
+    if (id && isOpen) {
+      const { sale } = await getSaleById(id)
+      if (sale) {
+        const { saleDate, productsSold, salesCount, amount, collaboratorId } =
+          sale
+        setDate(saleDate)
+        reset({
+          saleDate,
+          productsSold,
+          salesCount,
+          amount,
+          collaboratorId: String(collaboratorId),
+        })
+      }
+    }
+  }, [isOpen])
 
   useEffect(() => {
     async function fetchData() {
-      const leadsResponse = await getAllLeadsByOrganization()
+      //const leadsResponse = await getAllLeadsByOrganization()
       const collaboratorsResponse = await getAllCollaboratorsByOrganization()
-      if (leadsResponse.success) setLeads(leadsResponse.leads)
+      // if (leadsResponse.success) setLeads(leadsResponse.leads)
       if (collaboratorsResponse.success)
         setCollaborators(collaboratorsResponse.collaborators)
     }
@@ -97,11 +127,12 @@ export function FormSale({ create }: FormSaleProps) {
   }, [])
 
   const onSubmit = async (data: SaleFormData) => {
-    console.log(data)
     startTransition(async () => {
-      await createSaleAction({
-        ...data,
-      })
+      if (create) {
+        await createSaleAction(data)
+      } else if (id) {
+        await updateSaleAction(id, data)
+      }
       setOpen(false)
       reset()
     })
@@ -112,14 +143,7 @@ export function FormSale({ create }: FormSaleProps) {
       onOpenChange={setOpen}
       open={isOpen}
     >
-      <DialogTrigger asChild>
-        <Button
-          type='button'
-          className='text-white'
-        >
-          {create ? 'Adicionar Venda' : 'Editar Venda'}
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>
@@ -140,16 +164,80 @@ export function FormSale({ create }: FormSaleProps) {
               >
                 Valor
               </Label>
-              <CurrencyInput
-                id='amount'
-                className='col-span-3'
-                placeholder='0,00'
-                autoFocus
-                onValueChange={(value) => setValue('amount', value)}
+
+              <Controller
+                control={control}
+                name='amount'
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <CurrencyInput
+                    id='amount'
+                    className='col-span-3'
+                    placeholder='0,00'
+                    value={value.toString()}
+                    autoFocus
+                    onValueChange={(value) => setValue('amount', value)}
+                  />
+                )}
               />
 
               {errors.amount && (
                 <MessageError>{errors.amount.message}</MessageError>
+              )}
+            </div>
+
+            <div className='flex flex-col items-center space-x-2 space-y-1'>
+              <Label
+                htmlFor='productsSold'
+                className='ml-2 self-start'
+              >
+                Quantidade de Produtos vendidos
+              </Label>
+
+              <Controller
+                control={control}
+                name='productsSold'
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <CurrencyInput
+                    id='productsSold'
+                    className='col-span-3'
+                    placeholder='0,00'
+                    value={value.toString()}
+                    autoFocus
+                    onValueChange={(value) => setValue('productsSold', value)}
+                  />
+                )}
+              />
+
+              {errors.productsSold && (
+                <MessageError>{errors.productsSold.message}</MessageError>
+              )}
+            </div>
+
+            <div className='flex flex-col items-center space-x-2 space-y-1'>
+              <Label
+                htmlFor='salesCount'
+                className='ml-2 self-start'
+              >
+                Quantidade de Vendas feitas
+              </Label>
+
+              <Controller
+                control={control}
+                name='salesCount'
+                render={({ field: { onChange, onBlur, value, ref } }) => (
+                  <CurrencyInput
+                    id='salesCount'
+                    className='col-span-3'
+                    placeholder='0,00'
+                    value={value.toString()}
+                    autoFocus
+                    onValueChange={(value) => setValue('salesCount', value)}
+                  />
+                )}
+              />
+
+              {errors.salesCount && (
+                <MessageError>{errors.salesCount.message}</MessageError>
               )}
             </div>
 
@@ -199,34 +287,6 @@ export function FormSale({ create }: FormSaleProps) {
 
             <div className='flex flex-col items-center space-x-2 space-y-1'>
               <Label
-                htmlFor='lead'
-                className='ml-2 self-start'
-              >
-                Lead
-              </Label>
-              <Select onValueChange={(value) => setValue('leadId', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder='Selecione um lead' />
-                </SelectTrigger>
-                <SelectContent>
-                  {leads?.map((lead) => (
-                    <SelectItem
-                      key={lead.id}
-                      value={String(lead.id)}
-                    >
-                      {lead.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.leadId && (
-                <MessageError>{errors.leadId.message}</MessageError>
-              )}
-            </div>
-
-            {/* Campo para selecionar Colaborador */}
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
                 htmlFor='collaborator'
                 className='ml-2 self-start'
               >
@@ -234,6 +294,7 @@ export function FormSale({ create }: FormSaleProps) {
               </Label>
               <Select
                 onValueChange={(value) => setValue('collaboratorId', value)}
+                value={watch('collaboratorId')}
               >
                 <SelectTrigger>
                   <SelectValue placeholder='Selecione o colaborador' />

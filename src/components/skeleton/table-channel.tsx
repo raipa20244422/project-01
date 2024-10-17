@@ -16,12 +16,20 @@ export function SkeletonTableChannel() {
         <TableHeader>
           <TableRow>
             <TableHead className='w-96'>Nome</TableHead>
+            <TableHead className='w-96'>Numero de Leads</TableHead>
+            <TableHead className='w-96'>Data</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {Array.from({ length: 20 }).map((_, index) => (
             <TableRow key={index}>
+              <TableCell className='w-96'>
+                <Skeleton className='h-7' />
+              </TableCell>
+              <TableCell className='w-96'>
+                <Skeleton className='h-7' />
+              </TableCell>
               <TableCell className='w-96'>
                 <Skeleton className='h-7' />
               </TableCell>

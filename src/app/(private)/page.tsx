@@ -1,6 +1,5 @@
 import { BarChartHome } from '@/components/bar-chart'
 import { ChartNumberSales } from '@/components/chart-number-sales'
-import { LineChart1 } from '@/components/line-chart'
 import { PieVisitors } from '@/components/pie-visitors'
 
 export default function Home() {

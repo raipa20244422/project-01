@@ -1,4 +1,4 @@
-import { getAllLeadsByOrganization } from '@/actions/get-organization-lead'
+//import { getAllLeadsByOrganization } from '@/actions/get-organization-lead'
 import {
   Table,
   TableBody,
@@ -17,15 +17,15 @@ export type ResponseLead = {
 }
 
 export async function TableLead() {
-  const { leads } = await getAllLeadsByOrganization()
+  //const { leads } = await getAllLeadsByOrganization()
 
-  if (!leads || leads.length === 0) {
-    return <EmptyLead />
-  }
+  // if (!leads || leads.length === 0) {
+  //   return <EmptyLead />
+  // }
 
   return (
     <div className='rounded-lg bg-white'>
-      <Table>
+      {/* <Table>
         <TableHeader>
           <TableRow>
             <TableHead className='w-96'>Nome</TableHead>
@@ -48,7 +48,7 @@ export async function TableLead() {
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+      </Table> */}
     </div>
   )
 }

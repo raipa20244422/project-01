@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { createLeadAction } from '@/actions/create-lead'
 import {
   Dialog,
   DialogContent,
@@ -40,7 +39,7 @@ export function FormLeads({ create, id }: FormLeadsProps) {
   const onSubmit = async (data: LeadFormData) => {
     if (create) {
       startTransition(async () => {
-        const response = await createLeadAction(data)
+        //const response = await createLeadAction(data)
         // if (response.success) {
         //   alert('Lead criado com sucesso!')
         // } else {

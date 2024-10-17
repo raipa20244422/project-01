@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState, useTransition } from 'react'
+import { ReactNode, useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -29,9 +29,14 @@ type CollaboratorFormData = z.infer<typeof collaboratorSchema>
 interface FormCollaboratorProps {
   create: boolean
   id?: string
+  children: ReactNode
 }
 
-export function FormCollaborator({ create, id }: FormCollaboratorProps) {
+export function FormCollaborator({
+  create,
+  id,
+  children,
+}: FormCollaboratorProps) {
   const [isPending, startTransition] = useTransition()
   const [isOpen, setOpen] = useState(false)
 
@@ -62,14 +67,7 @@ export function FormCollaborator({ create, id }: FormCollaboratorProps) {
       onOpenChange={setOpen}
       open={isOpen}
     >
-      <DialogTrigger asChild>
-        <Button
-          type='button'
-          className='text-white'
-        >
-          {create ? 'Adicionar Colaborador' : 'Editar Colaborador'}
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>

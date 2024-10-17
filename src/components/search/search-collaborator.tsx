@@ -6,6 +6,7 @@ import { useQueryState } from 'nuqs'
 import { Input } from '@/components/ui/input'
 
 import { FormCollaborator } from '../form-collaborator'
+import { Button } from '../ui/button'
 
 export function SearchCollaborator() {
   const [query, setQuery] = useQueryState('search', {
@@ -28,7 +29,14 @@ export function SearchCollaborator() {
             placeholder='Busque pelo nome'
           />
         </div>
-        <FormCollaborator create />
+        <FormCollaborator create>
+          <Button
+            type='button'
+            className='text-white'
+          >
+            Adicionar Colaborador
+          </Button>
+        </FormCollaborator>
       </form>
     </div>
   )

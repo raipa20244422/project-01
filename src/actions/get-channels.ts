@@ -10,6 +10,8 @@ interface PaginatedChannelsResponse {
   channels: {
     id: number
     name: string
+    generateLeads: number
+    channelDate: Date
     createdAt: Date
     updatedAt: Date
   }[]
@@ -59,6 +61,9 @@ export async function getPaginatedChannels(
       select: {
         id: true,
         name: true,
+        generateLeads: true,
+
+        channelDate: true,
         createdAt: true,
         updatedAt: true,
       },
