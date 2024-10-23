@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  isActive      Boolean
+  createdAt     DateTime       @default(now())
+  organizations Organization[]
+  approved      Boolean        @default(false)
+}
+
+model Organization {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  isActive      Boolean
+  owner         User           @relation(fields: [ownerId], references: [id])
+  ownerId       Int
+  sales         Sale[]
+  collaborators Collaborator[]
+  createdAt     DateTime       @default(now())
+  approved      Boolean        @default(false)
+  Investment    Investment[]
+}
+
+model Sale {
+  id             Int          @id @default(autoincrement())
+  amount         Float
+  saleDate       DateTime
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  productsSold   Int
+  salesCount     Int
+  channelName    String
+  generateLeads  Float
+}
+
+model Collaborator {
+  id             Int          @id @default(autoincrement())
+  name           String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  createdAt      DateTime     @default(now())
+  leadsAttended  Float        @default(0)
+  salesCount     Float        @default(0)
+  productsSold   Float        @default(0)
+  revenue        Float        @default(0)
+}
+
+model Investment {
+  id             Int           @id @default(autoincrement())
+  amount         Float
+  profit         Float
+  month          DateTime
+  description    String        @db.VarChar(250) // Novo campo para descrição
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId Int?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @default(now()) @updatedAt
+}
