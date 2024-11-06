@@ -28,44 +28,95 @@ model Organization {
   ownerId       Int
   sales         Sale[]
   collaborators Collaborator[]
+  goals         Goal[]
   createdAt     DateTime       @default(now())
   approved      Boolean        @default(false)
-  Investment    Investment[]
+  Channel       Channel[]
 }
 
 model Sale {
   id             Int          @id @default(autoincrement())
-  amount         Float
-  saleDate       DateTime
-  createdAt      DateTime     @default(now())
+  month          DateTime // Armazena apenas mês/ano
+  investment     Float // Valor investido
+  revenue        Float // Faturamento
+  leadsGenerated Int // Quantidade de leads gerados
+  salesCount     Int // Número de vendas
+  productsSold   Int // Quantidade de produtos vendidos
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId Int
-  productsSold   Int
-  salesCount     Int
-  channelName    String
-  generateLeads  Float
+  createdAt      DateTime     @default(now())
+  Goal           Goal[]
 }
 
 model Collaborator {
-  id             Int          @id @default(autoincrement())
-  name           String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId Int
-  createdAt      DateTime     @default(now())
-  leadsAttended  Float        @default(0)
-  salesCount     Float        @default(0)
-  productsSold   Float        @default(0)
-  revenue        Float        @default(0)
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  organization          Organization            @relation(fields: [organizationId], references: [id])
+  organizationId        Int
+  createdAt             DateTime                @default(now())
+  items                 CollaboratorItem[]
+  Goal                  Goal[]
+  ChannelToCollaborator ChannelToCollaborator[]
 }
 
-model Investment {
-  id             Int           @id @default(autoincrement())
-  amount         Float
-  profit         Float
-  month          DateTime
-  description    String        @db.VarChar(250) // Novo campo para descrição
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  organizationId Int?
+model CollaboratorItem {
+  id             Int          @id @default(autoincrement())
+  leadsGenerated Int // Quantidade de leads gerados
+  salesCount     Int // Número de vendas realizadas
+  productsSold   Int // Quantidade de produtos vendidos
+  revenue        Float // Faturamento
+  investedAmount Float // Valor investido
+  channelId      Int?
+  channel        Channel?     @relation(fields: [channelId], references: [id])
+  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
+  collaboratorId Int
+  createdAt      DateTime     @default(now())
+}
+
+model Goal {
+  id               Int          @id @default(autoincrement())
+  goalType         GoalType // Tipo de Meta: Vendas ou Colaborador
+  valorInvestido   Float // Valor Investido
+  faturamento      Float // Faturamento
+  ledsGerados      Int // Quantidade de LEDs Gerados
+  numeroVendas     Int // Número de Vendas
+  produtosVendidos Int // Quantidade de Produtos Vendidos
+  mesMeta          DateTime
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  organizationId   Int // Relacionamento com a organização que possui essa meta
+
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @default(now()) @updatedAt
+  Sale           Sale?         @relation(fields: [saleId], references: [id])
+  saleId         Int?
+  Collaborator   Collaborator? @relation(fields: [collaboratorId], references: [id])
+  collaboratorId Int?
+}
+
+enum GoalType {
+  COLLABORATOR
+  SALES
+}
+
+model Channel {
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  organization          Organization            @relation(fields: [organizationId], references: [id])
+  organizationId        Int
+  ChannelToCollaborator ChannelToCollaborator[]
+  CollaboratorItem      CollaboratorItem[]
+}
+
+model ChannelToCollaborator {
+  id             Int          @id @default(autoincrement())
+  month          DateTime // Armazena o mês/ano
+  leadsGenerated Int // Quantidade de leads gerados nesse canal pelo colaborador
+  salesCount     Int // Número de vendas realizadas nesse canal pelo colaborador
+  productsSold   Int // Quantidade de produtos vendidos nesse canal pelo colaborador
+  revenue        Float // Faturamento gerado nesse canal pelo colaborador
+  channel        Channel      @relation(fields: [channelId], references: [id])
+  channelId      Int
+  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
+  collaboratorId Int
+  createdAt      DateTime     @default(now())
 }

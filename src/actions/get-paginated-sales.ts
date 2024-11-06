@@ -12,7 +12,7 @@ interface PaginatedSalesResponse {
     productsSold: number
     salesCount: number
     name: string
-    conversionRate: number // Novo campo para a taxa de conversão
+    conversionRate: number
   }[]
   totalSales: number
   currentPage: number
@@ -24,7 +24,6 @@ export async function getPaginatedSales(
 ): Promise<PaginatedSalesResponse> {
   try {
     const salesPerPage = 20
-
     const organizationId = getOrganizationIdFromJWT()
 
     if (!organizationId) {
@@ -52,7 +51,6 @@ export async function getPaginatedSales(
     }
 
     const totalPages = Math.ceil(totalSales / salesPerPage)
-
     const currentPage = Math.min(Math.max(page, 1), totalPages)
 
     const sales = await prisma.sale.findMany({
@@ -61,15 +59,19 @@ export async function getPaginatedSales(
       },
       select: {
         id: true,
-        saleDate: true,
-        amount: true,
+        createdAt: true,
+        revenue: true,
         productsSold: true,
-        channelName: true,
         salesCount: true,
-        generateLeads: true,
+        organization: {
+          select: {
+            name: true,
+          },
+        },
+        leadsGenerated: true,
       },
       orderBy: {
-        saleDate: 'desc',
+        createdAt: 'desc',
       },
       skip: (currentPage - 1) * salesPerPage,
       take: salesPerPage,
@@ -77,13 +79,13 @@ export async function getPaginatedSales(
 
     const salesData = sales.map((sale) => ({
       id: sale.id,
-      saleDate: sale.saleDate,
-      amount: sale.amount,
+      saleDate: sale.createdAt,
+      amount: sale.revenue,
       productsSold: sale.productsSold,
       salesCount: sale.salesCount,
-      name: sale.channelName,
+      name: sale.organization.name,
       conversionRate:
-        sale.salesCount > 0 ? sale.generateLeads / sale.salesCount : 0, // Calcular a taxa de conversão
+        sale.salesCount > 0 ? sale.leadsGenerated / sale.salesCount : 0,
     }))
 
     return {

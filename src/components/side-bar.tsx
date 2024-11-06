@@ -6,6 +6,7 @@ import {
   House,
   ShoppingBasket,
   TrendingUp,
+  Tv,
   UsersRound,
 } from 'lucide-react'
 
@@ -31,10 +32,16 @@ const routes = [
     icon: <UsersRound strokeWidth={1.5} />,
   },
   {
-    name: 'investimentos',
-    path: '/investimentos',
-    label: 'Investimentos',
+    name: 'goal',
+    path: '/goal',
+    label: 'Metas',
     icon: <DollarSign strokeWidth={1.5} />,
+  },
+  {
+    name: 'channels',
+    path: '/channels',
+    label: 'Canais',
+    icon: <Tv strokeWidth={1.5} />,
   },
 ]
 

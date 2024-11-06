@@ -20,13 +20,13 @@ export async function createSaleAction(data: SaleFormData) {
 
     const sale = await prisma.sale.create({
       data: {
-        amount: data.amount,
-        productsSold: data.productsSold,
+        month: new Date(data.month),
+        investment: data.investment,
+        revenue: data.revenue,
+        leadsGenerated: data.leadsGenerated,
         salesCount: data.salesCount,
-        saleDate: new Date(data.saleDate),
+        productsSold: data.productsSold,
         organizationId: organizationId,
-        channelName: data.channelName,
-        generateLeads: data.generateLeads,
       },
     })
 
@@ -68,12 +68,12 @@ export async function updateSaleAction(id: number, data: SaleFormData) {
         id: id,
       },
       data: {
-        amount: data.amount,
-        productsSold: data.productsSold,
+        month: new Date(data.month),
+        investment: data.investment,
+        revenue: data.revenue,
+        leadsGenerated: data.leadsGenerated,
         salesCount: data.salesCount,
-        saleDate: new Date(data.saleDate),
-        channelName: data.channelName,
-        generateLeads: data.generateLeads,
+        productsSold: data.productsSold,
       },
     })
 

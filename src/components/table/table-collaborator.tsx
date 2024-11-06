@@ -1,4 +1,7 @@
-import { getAllCollaboratorsByOrganization } from '@/actions/gt-organization-collaborator'
+import {
+  getAllCollaboratorsByOrganization,
+  ResponseCollaborator,
+} from '@/actions/gt-organization-collaborator'
 import {
   Table,
   TableBody,
@@ -13,15 +16,6 @@ import { EmptyCollaborator } from '../empty-table/empty-collaborator'
 import { FormCollaborator } from '../form-collaborator'
 import { Button } from '../ui/button'
 
-export type ResponseCollaborator = {
-  id: string
-  name: string
-  leadsAttended: number
-  salesCount: number
-  productsSold: number
-  revenue: number
-}
-
 export async function TableCollaborator() {
   const { collaborators } = await getAllCollaboratorsByOrganization()
 
@@ -35,7 +29,7 @@ export async function TableCollaborator() {
         <TableHeader>
           <TableRow>
             <TableHead className='w-96'>Nome</TableHead>
-            <TableHead className='w-20'>Leads Atendidos</TableHead>
+            <TableHead className='w-20'>Leads Gerados</TableHead>
             <TableHead className='w-20'>Vendas</TableHead>
             <TableHead className='w-20'>Produtos Vendidos</TableHead>
             <TableHead className='w-20'>Faturamento</TableHead>
@@ -43,22 +37,22 @@ export async function TableCollaborator() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {collaborators.map((current, index) => (
-            <TableRow key={index}>
+          {collaborators.map((current: ResponseCollaborator) => (
+            <TableRow key={current.id}>
               <TableCell className='h-5 w-96 text-xs font-medium text-gray-500'>
                 {current.name}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                {current.leadsAttended}
+                {current.totalLeadsGenerated}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                {current.salesCount}
+                {current.totalSalesCount}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                {current.productsSold}
+                {current.totalProductsSold}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                {formatReal(current.revenue)}
+                {formatReal(current.totalRevenue)}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
                 <FormCollaborator

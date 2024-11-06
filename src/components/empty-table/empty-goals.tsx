@@ -2,17 +2,15 @@ import { ListX } from 'lucide-react'
 
 import { Table, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-export function EmptyCollaborator() {
+export function EmptyGoals() {
   return (
     <div className='h-full overflow-hidden rounded-lg border bg-white'>
       <Table className='border-none'>
         <TableHeader>
           <TableRow>
             <TableHead className='w-96'>Nome</TableHead>
-            <TableHead className='w-20'>Leads Gerados</TableHead>
-            <TableHead className='w-20'>Vendas</TableHead>
-            <TableHead className='w-20'>Produtos Vendidos</TableHead>
-            <TableHead className='w-20'>Faturamento</TableHead>
+            <TableHead className='w-96'>Leads Gerados</TableHead>
+            <TableHead className='w-96'>Data</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
         </TableHeader>

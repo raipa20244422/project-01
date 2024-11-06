@@ -1,10 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ReactNode, useMemo, useState, useTransition } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { ReactNode, useEffect, useState, useTransition } from 'react'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { getAllChannels } from '@/actions/channel-actions'
 import {
   createCollaboratorAction,
   getCollaboratorById,
@@ -14,39 +15,49 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 import { CurrencyInput } from './currency-input'
-import { MessageError } from './message-erro'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 
+// Schema do formulário
 const collaboratorSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório'),
-  leadsAttended: z
-    .number()
-    .min(0, 'O número de leads atendidos deve ser maior ou igual a 0')
-    .optional(),
-  salesCount: z
-    .number()
-    .min(0, 'O número de vendas deve ser maior ou igual a 0')
-    .optional(),
-  productsSold: z
-    .number()
-    .min(0, 'A quantidade de produtos vendidos deve ser maior ou igual a 0')
-    .optional(),
-  revenue: z
-    .number()
-    .min(0, 'O faturamento deve ser maior ou igual a 0')
-    .optional(),
 })
 
 export type CollaboratorFormData = z.infer<typeof collaboratorSchema>
+
+export interface ItemData {
+  id?: number
+  channelId: number | null
+  leadsGenerated: number
+  salesCount: number
+  productsSold: number
+  revenue: number
+  investedAmount: number
+}
 
 interface FormCollaboratorProps {
   create: boolean
@@ -61,6 +72,18 @@ export function FormCollaborator({
 }: FormCollaboratorProps) {
   const [isPending, startTransition] = useTransition()
   const [isOpen, setOpen] = useState(false)
+  const [items, setItems] = useState<ItemData[]>([])
+  const [channels, setChannels] = useState<{ id: number; name: string }[]>([])
+
+  useEffect(() => {
+    const fetchChannels = async () => {
+      const response = await getAllChannels()
+      if (response.success) {
+        setChannels(response.channels)
+      }
+    }
+    fetchChannels()
+  }, [])
 
   const {
     handleSubmit,
@@ -68,53 +91,82 @@ export function FormCollaborator({
     reset,
     register,
     setValue,
-    control,
   } = useForm<CollaboratorFormData>({
     resolver: zodResolver(collaboratorSchema),
     defaultValues: {
-      leadsAttended: 0,
-      salesCount: 0,
-      productsSold: 0,
-      revenue: 0,
+      name: '',
     },
   })
 
-  useMemo(async () => {
-    if (id && isOpen) {
-      const { collaborator } = await getCollaboratorById(id)
-      if (collaborator) {
-        const { name, leadsAttended, salesCount, productsSold, revenue } =
-          collaborator
-        reset({
-          name,
-          leadsAttended,
-          salesCount,
-          productsSold,
-          revenue,
-        })
-      }
-    }
-  }, [id, isOpen, reset])
-
   const onSubmit = async (data: CollaboratorFormData) => {
     startTransition(async () => {
+      const finalData = {
+        ...data,
+        items,
+      }
+
+      console.log(finalData)
       if (create) {
-        await createCollaboratorAction(data)
+        await createCollaboratorAction(finalData)
       } else if (id) {
-        await updateCollaboratorAction(id, data)
+        await updateCollaboratorAction(id, finalData)
       }
       setOpen(false)
       reset()
+      setItems([])
     })
+  }
+
+  useEffect(() => {
+    if (!create && id) {
+      const fetchCollaborator = async () => {
+        const response = await getCollaboratorById(id)
+        if (response.success) {
+          const collaborator = response.collaborator
+          if (collaborator) {
+            setValue('name', collaborator.name)
+            setItems(collaborator.items)
+          }
+        }
+      }
+      fetchCollaborator()
+    }
+  }, [create, id, setValue])
+
+  const addNewItem = () => {
+    setItems((prevItems) => [
+      ...prevItems,
+      {
+        id: undefined,
+        channelId: null,
+        leadsGenerated: 0,
+        salesCount: 0,
+        productsSold: 0,
+        revenue: 0,
+        investedAmount: 0,
+      },
+    ])
+  }
+
+  const removeItem = (index: number) => {
+    setItems((prevItems) => prevItems.filter((_, i) => i !== index))
+  }
+
+  const updateItem = (index: number, field: keyof ItemData, value: number) => {
+    setItems((prevItems) =>
+      prevItems.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item,
+      ),
+    )
   }
 
   return (
     <Dialog
-      onOpenChange={setOpen}
+      onOpenChange={() => setOpen(!isOpen)}
       open={isOpen}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className='max-w-4xl sm:w-[900px]'>
         <DialogHeader>
           <DialogTitle>
             {create ? 'Adicionar Novo Colaborador' : `Editar Colaborador ${id}`}
@@ -125,138 +177,161 @@ export function FormCollaborator({
               : 'Edite as informações do colaborador. Clique em salvar para atualizar.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className='grid gap-4 py-4'>
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='name'
-                className='ml-2 self-start'
-              >
-                Nome
-              </Label>
+
+        <div className='grid grid-cols-1 gap-4 overflow-hidden'>
+          <div className='flex flex-col space-y-2 p-2'>
+            <div className='flex flex-col space-y-1'>
+              <Label>Colaborador</Label>
               <Input
-                id='name'
-                className='col-span-3'
                 {...register('name')}
+                placeholder='Colaborador'
               />
               {errors.name && (
-                <MessageError>{errors.name.message}</MessageError>
+                <p className='text-sm text-red-500'>{errors.name.message}</p>
               )}
             </div>
+            <Button onClick={addNewItem}>Adicionar Item</Button>
 
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='leadsAttended'
-                className='ml-2 self-start'
-              >
-                Leads Atendidos
-              </Label>
-              <Controller
-                control={control}
-                name='leadsAttended'
-                render={({ field: { value } }) => (
-                  <CurrencyInput
-                    id='leadsAttended'
-                    className='col-span-3'
-                    placeholder='0'
-                    value={value?.toString() || ''}
-                    onValueChange={(value) => setValue('leadsAttended', value)}
-                  />
-                )}
-              />
-              {errors.leadsAttended && (
-                <MessageError>{errors.leadsAttended.message}</MessageError>
-              )}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Canal</TableHead>
+                  <TableHead>Leads Gerados</TableHead>
+                  <TableHead>Vendas Realizadas</TableHead>
+                  <TableHead>Produtos Vendidos</TableHead>
+                  <TableHead>Faturamento</TableHead>
+                  <TableHead>Valor Investido</TableHead>
+                  <TableHead>Ticket Médio</TableHead>
+                  <TableHead>PA</TableHead>
+                  <TableHead>ROI</TableHead>
+                  <TableHead>CAC</TableHead>
+                  <TableHead>CPL</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((item, index) => {
+                  const {
+                    leadsGenerated,
+                    salesCount,
+                    productsSold,
+                    revenue,
+                    investedAmount,
+                  } = item
 
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='salesCount'
-                className='ml-2 self-start'
-              >
-                Número de Vendas
-              </Label>
-              <Controller
-                control={control}
-                name='salesCount'
-                render={({ field: { value } }) => (
-                  <CurrencyInput
-                    id='salesCount'
-                    className='col-span-3'
-                    placeholder='0'
-                    value={value?.toString() || ''}
-                    onValueChange={(value) => setValue('salesCount', value)}
-                  />
-                )}
-              />
-              {errors.salesCount && (
-                <MessageError>{errors.salesCount.message}</MessageError>
-              )}
-            </div>
+                  const ticketMedio = salesCount > 0 ? revenue / salesCount : 0
+                  const pa = salesCount > 0 ? productsSold / salesCount : 0
+                  const roi = revenue - investedAmount
+                  const cac = salesCount > 0 ? investedAmount / salesCount : 0
+                  const cpl =
+                    leadsGenerated > 0 ? investedAmount / leadsGenerated : 0
 
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='productsSold'
-                className='ml-2 self-start'
-              >
-                Produtos Vendidos
-              </Label>
-              <Controller
-                control={control}
-                name='productsSold'
-                render={({ field: { value } }) => (
-                  <CurrencyInput
-                    id='productsSold'
-                    className='col-span-3'
-                    placeholder='0'
-                    value={value?.toString() || ''}
-                    onValueChange={(value) => setValue('productsSold', value)}
-                  />
-                )}
-              />
-              {errors.productsSold && (
-                <MessageError>{errors.productsSold.message}</MessageError>
-              )}
-            </div>
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Select
+                          value={item.channelId?.toString() || ''}
+                          onValueChange={(value) =>
+                            updateItem(index, 'channelId', parseInt(value))
+                          }
+                        >
+                          <SelectTrigger className='w-[180px]'>
+                            <SelectValue placeholder='Selecione um canal' />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {channels.map((channel) => (
+                                <SelectItem
+                                  key={channel.id}
+                                  value={channel.id.toString()}
+                                >
+                                  {channel.name}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={leadsGenerated}
+                          onValueChange={(value) =>
+                            updateItem(index, 'leadsGenerated', value || 0)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={salesCount}
+                          onValueChange={(value) =>
+                            updateItem(index, 'salesCount', value || 0)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={productsSold}
+                          onValueChange={(value) =>
+                            updateItem(index, 'productsSold', value || 0)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={revenue}
+                          onValueChange={(value) =>
+                            updateItem(index, 'revenue', value || 0)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={investedAmount}
+                          onValueChange={(value) =>
+                            updateItem(index, 'investedAmount', value || 0)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>{ticketMedio.toFixed(2)}</TableCell>
+                      <TableCell>{pa.toFixed(2)}</TableCell>
+                      <TableCell>{roi.toFixed(2)}</TableCell>
+                      <TableCell>{cac.toFixed(2)}</TableCell>
+                      <TableCell>{cpl.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Button
+                          type='button'
+                          onClick={() => removeItem(index)}
+                        >
+                          Remover
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
 
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='revenue'
-                className='ml-2 self-start'
+            <div className='mt-4 flex justify-end space-x-2'>
+              <Button
+                onClick={handleSubmit(onSubmit)}
+                disabled={isPending}
               >
-                Faturamento
-              </Label>
-              <Controller
-                control={control}
-                name='revenue'
-                render={({ field: { value } }) => (
-                  <CurrencyInput
-                    id='revenue'
-                    className='col-span-3'
-                    placeholder='0,00'
-                    value={value?.toString() || ''}
-                    onValueChange={(value) => setValue('revenue', value)}
-                  />
-                )}
-              />
-              {errors.revenue && (
-                <MessageError>{errors.revenue.message}</MessageError>
-              )}
+                {isPending ? 'Salvando...' : 'Salvar'}
+              </Button>
+              <Button
+                variant='outline'
+                onClick={() => setOpen(false)}
+              >
+                Cancelar
+              </Button>
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type='submit'
-              disabled={isPending}
-            >
-              {isPending
-                ? 'Salvando...'
-                : create
-                  ? 'Salvar Colaborador'
-                  : 'Atualizar Colaborador'}
-            </Button>
-          </DialogFooter>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   )

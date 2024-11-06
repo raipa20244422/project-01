@@ -16,7 +16,7 @@ export function SkeletonTableCollaborator() {
         <TableHeader>
           <TableRow>
             <TableHead className='w-96'>Nome</TableHead>
-            <TableHead className='w-20'>Leads Atendidos</TableHead>
+            <TableHead className='w-20'>Leads Gerados</TableHead>
             <TableHead className='w-20'>Vendas</TableHead>
             <TableHead className='w-20'>Produtos Vendidos</TableHead>
             <TableHead className='w-20'>Faturamento</TableHead>

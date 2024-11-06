@@ -6,11 +6,10 @@ import { FormEvent } from 'react'
 
 import { Input } from '@/components/ui/input'
 
-import { FormInvestment } from '../form-investments'
-import { FormLeads } from '../form-leads'
+import { FormChannel } from '../form-channel'
 import { Button } from '../ui/button'
 
-export function SearchInvestments() {
+export function SearchChannel() {
   const [query, setQuery] = useQueryState('search', {
     defaultValue: '',
   })
@@ -39,14 +38,14 @@ export function SearchInvestments() {
             placeholder='Busque pelo nome'
           />
         </div>
-        <FormInvestment create>
+        <FormChannel create>
           <Button
             type='button'
             className='text-white'
           >
-            Adicionar Investimento
+            Adicionar Canal
           </Button>
-        </FormInvestment>
+        </FormChannel>
       </form>
     </div>
   )

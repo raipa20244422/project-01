@@ -37,7 +37,10 @@ export async function signInWithCredentials(schema: SignInSchema) {
       { expiresIn: '6h' },
     )
 
-    cookies().set('token', token, { httpOnly: false })
+    cookies().set('token', token, {
+      httpOnly: false,
+      expires: new Date(Date.now() + 6 * 60 * 60 * 1000),
+    })
 
     return { code: 200, message: 'Sign-in successful' }
   } catch (error: any) {
