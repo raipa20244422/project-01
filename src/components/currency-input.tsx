@@ -23,7 +23,7 @@ export const CurrencyInput = React.forwardRef<
       thousandSeparator = '.',
       decimalSeparator = ',',
       decimalScale = 2,
-      fixedDecimalScale = true,
+      fixedDecimalScale = false,
       onValueChange,
       ...props
     },

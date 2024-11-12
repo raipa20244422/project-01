@@ -196,7 +196,7 @@ export function FormCollaborator({
               <TableHeader>
                 <TableRow>
                   <TableHead>Canal</TableHead>
-                  <TableHead>Leads Gerados</TableHead>
+                  <TableHead>Leads Atendidos</TableHead>
                   <TableHead>Vendas Realizadas</TableHead>
                   <TableHead>Produtos Vendidos</TableHead>
                   <TableHead>Faturamento</TableHead>
@@ -297,11 +297,41 @@ export function FormCollaborator({
                           }
                         />
                       </TableCell>
-                      <TableCell>{ticketMedio.toFixed(2)}</TableCell>
-                      <TableCell>{pa.toFixed(2)}</TableCell>
-                      <TableCell>{roi.toFixed(2)}</TableCell>
-                      <TableCell>{cac.toFixed(2)}</TableCell>
-                      <TableCell>{cpl.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={ticketMedio}
+                          disabled
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={pa}
+                          disabled
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={roi}
+                          disabled
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={cac}
+                          disabled
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <CurrencyInput
+                          className='min-w-32'
+                          value={cpl}
+                          disabled
+                        />
+                      </TableCell>
                       <TableCell>
                         <Button
                           type='button'

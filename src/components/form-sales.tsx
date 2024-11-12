@@ -13,6 +13,7 @@ import {
   getSaleById,
   updateSaleAction,
 } from '@/actions/create-sale'
+import { getChannels } from '@/actions/goals-actions'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -30,6 +31,14 @@ import { CurrencyInput } from './currency-input'
 import { MessageError } from './message-erro'
 import { Calendar } from './ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select'
 
 const saleSchema = z.object({
   month: z.date({
@@ -66,6 +75,7 @@ const saleSchema = z.object({
       invalid_type_error: 'Produtos vendidos deve ser numérico.',
     })
     .min(1, 'Deve ser pelo menos 1.'),
+  canalId: z.string({ required_error: 'Informar o canal é obrigatório' }),
 })
 
 export type SaleFormData = z.infer<typeof saleSchema>
@@ -80,6 +90,7 @@ export function FormSale({ create, id, children }: FormSaleProps) {
   const [isPending, startTransition] = useTransition()
   const [isOpen, setOpen] = useState(false)
   const [date, setDate] = useState<Date>()
+  const [channels, setChannels] = useState<{ id: number; name: string }[]>([])
 
   const {
     handleSubmit,
@@ -121,12 +132,10 @@ export function FormSale({ create, id, children }: FormSaleProps) {
     [productsSold, salesCount],
   )
   const roi = useMemo(
-    () =>
-      investment > 0
-        ? (((revenue - investment) / investment) * 100).toFixed(2) + '%'
-        : '0.00%',
+    () => (investment > 0 ? (revenue / investment).toFixed(2) : '0.00'),
     [revenue, investment],
   )
+
   const cac = useMemo(
     () => (salesCount > 0 ? (investment / salesCount).toFixed(2) : '0.00'),
     [investment, salesCount],
@@ -150,12 +159,20 @@ export function FormSale({ create, id, children }: FormSaleProps) {
   }
 
   useEffect(() => {
+    const fetchChannels = async () => {
+      const responseChannel = await getChannels()
+      if (responseChannel.channels) {
+        setChannels(responseChannel.channels)
+      }
+    }
+    fetchChannels()
+
     if (!create && id && isOpen) {
       const fetchCollaborator = async () => {
         const result = await getSaleById(id)
         if (result.success && result.sale) {
           const sale = result.sale
-          reset(sale)
+          reset({ ...sale, canalId: sale.channelId.toString() })
           setDate(new Date(sale.month))
         }
       }
@@ -218,6 +235,39 @@ export function FormSale({ create, id, children }: FormSaleProps) {
               </Popover>
               {errors.month && (
                 <MessageError>{errors.month.message}</MessageError>
+              )}
+            </div>
+
+            <div className='flex flex-col items-start justify-start space-y-2 text-nowrap'>
+              <Label>Canal da Venda</Label>
+              <Controller
+                control={control}
+                name='canalId'
+                render={({ field: { onChange, value } }) => (
+                  <Select
+                    value={value}
+                    onValueChange={onChange}
+                  >
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder='Selecione o canal da venda' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {channels.map((channel) => (
+                          <SelectItem
+                            key={channel.id}
+                            value={String(channel.id)}
+                          >
+                            {channel.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.canalId && (
+                <MessageError>{errors.canalId.message}</MessageError>
               )}
             </div>
 

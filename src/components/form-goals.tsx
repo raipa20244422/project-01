@@ -1,14 +1,16 @@
 'use client'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, XIcon } from 'lucide-react'
 import { ReactNode, useEffect, useState, useTransition } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import {
   createGoalAction,
+  getChannels,
   getGoalById,
   updateGoalAction,
 } from '@/actions/goals-actions'
@@ -42,29 +44,58 @@ const goalSchema = z.object({
   goalType: z.enum(['SALES', 'COLLABORATOR'], {
     errorMap: () => ({ message: 'Tipo de meta é obrigatório' }),
   }),
-  valorInvestido: z.number().min(0, 'O valor investido deve ser positivo'),
-  faturamento: z.number().min(0, 'O faturamento deve ser positivo'),
-  ledsGerados: z.number().min(0, 'A quantidade de LEDs deve ser positiva'),
+  valorInvestido: z
+    .number()
+    .min(0, 'O valor investido deve ser positivo')
+    .default(0),
+  faturamento: z.number().min(0, 'O faturamento deve ser positivo').default(0),
+  ledsGerados: z
+    .number()
+    .min(0, 'A quantidade de LEDs deve ser positiva')
+    .default(0),
   mesMeta: z.date({ required_error: 'Informe a data da meta' }),
-  numeroVendas: z.number().min(0, 'O número de vendas deve ser positivo'),
+  numeroVendas: z
+    .number()
+    .min(0, 'O número de vendas deve ser positivo')
+    .default(0),
   produtosVendidos: z
     .number()
-    .min(0, 'A quantidade de produtos vendidos deve ser positiva'),
+    .min(0, 'A quantidade de produtos vendidos deve ser positiva')
+    .default(0),
+  canalMeta: z.string({ required_error: 'Informar o canal é obrigatório' }),
 })
 
 export type GoalFormData = z.infer<typeof goalSchema>
 
+interface Map {
+  valorInvestido: number
+  faturamento: number
+  ledsGerados: number
+  numeroVendas: number
+  produtosVendidos: number
+}
 interface FormGoalProps {
   create: boolean
   id?: number
   children: ReactNode
 }
 
+const fieldOptions = [
+  { label: 'Valor Investido', value: 'valorInvestido' },
+  { label: 'Faturamento', value: 'faturamento' },
+  { label: 'LEDs Gerados', value: 'ledsGerados' },
+  { label: 'Número de Vendas', value: 'numeroVendas' },
+  { label: 'Produtos Vendidos', value: 'produtosVendidos' },
+]
+
 export function FormGoal({ create, id, children }: FormGoalProps) {
   const [isPending, startTransition] = useTransition()
   const [isOpen, setOpen] = useState(false)
   const [date, setDate] = useState<Date>()
   const [goalData, setGoalData] = useState<GoalFormData | null>(null)
+  const [channels, setChannels] = useState<{ id: number; name: string }[]>([])
+  const [selectedFields, setSelectedFields] = useState<string[]>([])
+  const [newField, setNewField] = useState<string>('')
 
   const {
     handleSubmit,
@@ -84,14 +115,38 @@ export function FormGoal({ create, id, children }: FormGoalProps) {
     },
   })
 
+  const fetchChannels = async () => {
+    const responseChannel = await getChannels()
+    if (responseChannel.channels) {
+      setChannels(responseChannel.channels)
+    }
+  }
+
   useEffect(() => {
+    fetchChannels()
     if (id && isOpen) {
       startTransition(async () => {
         const response = await getGoalById(id)
         if (response.success && response.goal) {
-          setGoalData(response.goal)
-          reset(response.goal)
+          const goal = response.goal
+          setGoalData({
+            ...response.goal,
+            canalMeta: String(response.goal.channelId),
+          })
+          reset({
+            ...response.goal,
+            canalMeta: String(response.goal.channelId),
+          })
           setDate(new Date(response.goal.mesMeta))
+
+          Object.keys(goal).forEach((key) => {
+            if (fieldOptions.some((option) => option.value === key)) {
+              if (goal[key as keyof Map] > 0) {
+                setSelectedFields((prev) => [...prev, key])
+                setValue(key as keyof Map, goal[key as keyof Map])
+              }
+            }
+          })
         }
       })
     }
@@ -113,6 +168,19 @@ export function FormGoal({ create, id, children }: FormGoalProps) {
         console.error(response?.message || 'Erro ao salvar meta.')
       }
     })
+  }
+
+  const addSelectedField = () => {
+    if (newField && !selectedFields.includes(newField)) {
+      setSelectedFields([...selectedFields, newField])
+      setNewField('')
+    }
+  }
+
+  const removeField = (field: string) => {
+    setSelectedFields(
+      selectedFields.filter((selectedField) => selectedField !== field),
+    )
   }
 
   return (
@@ -169,7 +237,46 @@ export function FormGoal({ create, id, children }: FormGoalProps) {
               )}
             </div>
 
-            {/* DataPicker para Mês da Meta */}
+            {/* Canal da Meta */}
+            <div className='flex flex-col items-center space-x-2 space-y-1'>
+              <Label
+                htmlFor='canalMeta'
+                className='ml-2 self-start'
+              >
+                Canal da Meta
+              </Label>
+              <Controller
+                control={control}
+                name='canalMeta'
+                render={({ field: { onChange, value } }) => (
+                  <Select
+                    value={value}
+                    onValueChange={onChange}
+                  >
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder='Selecione o canal da meta' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {channels.map((channel) => (
+                          <SelectItem
+                            key={channel.id}
+                            value={String(channel.id)}
+                          >
+                            {channel.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.canalMeta && (
+                <MessageError>{errors.canalMeta.message}</MessageError>
+              )}
+            </div>
+
+            {/* Mês da Meta */}
             <div className='flex flex-col items-center space-x-2 space-y-1'>
               <Label
                 htmlFor='mesMeta'
@@ -214,126 +321,84 @@ export function FormGoal({ create, id, children }: FormGoalProps) {
               )}
             </div>
 
-            {/* Campos CurrencyInput Controlados */}
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='valorInvestido'
-                className='ml-2 self-start'
+            {/* Adicionar Campos Dinâmicos */}
+            <div className='flex flex-row items-center space-x-2'>
+              <Select
+                value={newField}
+                onValueChange={setNewField}
               >
-                Valor Investido
-              </Label>
-              <Controller
-                control={control}
-                name='valorInvestido'
-                render={({ field: { onChange, value } }) => (
-                  <CurrencyInput
-                    id='valorInvestido'
-                    value={value}
-                    onValueChange={onChange}
-                    placeholder='0,00'
-                  />
-                )}
-              />
-              {errors.valorInvestido && (
-                <MessageError>{errors.valorInvestido.message}</MessageError>
-              )}
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='Selecione um campo para adicionar' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {fieldOptions.map((field) => (
+                      <SelectItem
+                        key={field.value}
+                        value={field.value}
+                        className={
+                          selectedFields.includes(field.value)
+                            ? 'opacity-50'
+                            : ''
+                        }
+                      >
+                        {field.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Button
+                type='button'
+                onClick={addSelectedField}
+              >
+                Adicionar
+              </Button>
             </div>
 
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='faturamento'
-                className='ml-2 self-start'
+            {/* Renderizar Campos Selecionados */}
+            {selectedFields.map((field) => (
+              <div
+                key={field}
+                className='flex flex-row items-center space-x-2 space-y-1'
               >
-                Faturamento
-              </Label>
-              <Controller
-                control={control}
-                name='faturamento'
-                render={({ field: { onChange, value } }) => (
-                  <CurrencyInput
-                    id='faturamento'
-                    value={value}
-                    onValueChange={onChange}
-                    placeholder='0,00'
+                <div className='flex flex-grow flex-col'>
+                  <Label
+                    htmlFor={field}
+                    className='ml-2 self-start'
+                  >
+                    {
+                      fieldOptions.find((option) => option.value === field)
+                        ?.label
+                    }
+                  </Label>
+                  <Controller
+                    control={control}
+                    name={field as keyof Map}
+                    render={({ field: { onChange, value } }) => (
+                      <CurrencyInput
+                        id={field}
+                        value={value}
+                        onValueChange={onChange}
+                        placeholder='0,00'
+                      />
+                    )}
                   />
-                )}
-              />
-              {errors.faturamento && (
-                <MessageError>{errors.faturamento.message}</MessageError>
-              )}
-            </div>
-
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='ledsGerados'
-                className='ml-2 self-start'
-              >
-                LEDs Gerados (Quantidade)
-              </Label>
-              <Controller
-                control={control}
-                name='ledsGerados'
-                render={({ field: { onChange, value } }) => (
-                  <CurrencyInput
-                    id='ledsGerados'
-                    value={value}
-                    onValueChange={onChange}
-                    placeholder='0'
-                  />
-                )}
-              />
-              {errors.ledsGerados && (
-                <MessageError>{errors.ledsGerados.message}</MessageError>
-              )}
-            </div>
-
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='numeroVendas'
-                className='ml-2 self-start'
-              >
-                Número de Vendas (Quantidade)
-              </Label>
-              <Controller
-                control={control}
-                name='numeroVendas'
-                render={({ field: { onChange, value } }) => (
-                  <CurrencyInput
-                    id='numeroVendas'
-                    value={value}
-                    onValueChange={onChange}
-                    placeholder='0'
-                  />
-                )}
-              />
-              {errors.numeroVendas && (
-                <MessageError>{errors.numeroVendas.message}</MessageError>
-              )}
-            </div>
-
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='produtosVendidos'
-                className='ml-2 self-start'
-              >
-                Produtos Vendidos (Quantidade)
-              </Label>
-              <Controller
-                control={control}
-                name='produtosVendidos'
-                render={({ field: { onChange, value } }) => (
-                  <CurrencyInput
-                    id='produtosVendidos'
-                    value={value}
-                    onValueChange={onChange}
-                    placeholder='0'
-                  />
-                )}
-              />
-              {errors.produtosVendidos && (
-                <MessageError>{errors.produtosVendidos.message}</MessageError>
-              )}
-            </div>
+                  {errors[field as keyof GoalFormData] && (
+                    <MessageError>
+                      {errors[field as keyof GoalFormData]?.message}
+                    </MessageError>
+                  )}
+                </div>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  onClick={() => removeField(field)}
+                >
+                  <XIcon className='h-4 w-4 text-red-500' />
+                </Button>
+              </div>
+            ))}
           </div>
           <DialogFooter>
             <Button

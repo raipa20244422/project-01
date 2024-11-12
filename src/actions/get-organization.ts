@@ -33,7 +33,6 @@ export async function getCurrentOrganization() {
     })
 
     if (!organization) {
-      cookies().delete('auth_store')
       redirect('/sign-in')
       return
     }
@@ -41,6 +40,6 @@ export async function getCurrentOrganization() {
     return { success: true, organization }
   } catch (error) {
     console.error('Erro ao buscar a organização:', error)
-    redirect('/sign-in')
+    redirect('/api/clear-token')
   }
 }

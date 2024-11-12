@@ -23,6 +23,7 @@ export async function createGoalAction(data: GoalFormData) {
         ledsGerados: data.ledsGerados,
         numeroVendas: data.numeroVendas,
         produtosVendidos: data.produtosVendidos,
+        channelId: Number(data.canalMeta),
         organizationId,
       },
     })
@@ -52,6 +53,7 @@ export async function updateGoalAction(id: number, data: GoalFormData) {
         ledsGerados: data.ledsGerados,
         numeroVendas: data.numeroVendas,
         produtosVendidos: data.produtosVendidos,
+        channelId: Number(data.canalMeta),
       },
     })
 
@@ -154,5 +156,24 @@ export async function getPaginatedGoals(page: number = 1) {
       currentPage: 1,
       totalPages: 1,
     }
+  }
+}
+
+export async function getChannels() {
+  try {
+    const organizationId = getOrganizationIdFromJWT()
+    if (!organizationId) {
+      return { success: false, message: 'Organização não encontrada.' }
+    }
+
+    const channels = await prisma.channel.findMany({
+      where: { organizationId },
+      select: { id: true, name: true },
+    })
+
+    return { success: true, channels }
+  } catch (error) {
+    console.error('Erro ao buscar canais:', error)
+    return { success: false, message: 'Erro ao buscar canais.' }
   }
 }

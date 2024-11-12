@@ -23,6 +23,7 @@ export async function createSaleAction(data: SaleFormData) {
         month: new Date(data.month),
         investment: data.investment,
         revenue: data.revenue,
+        channelId: Number(data.canalId),
         leadsGenerated: data.leadsGenerated,
         salesCount: data.salesCount,
         productsSold: data.productsSold,
@@ -73,6 +74,7 @@ export async function updateSaleAction(id: number, data: SaleFormData) {
         revenue: data.revenue,
         leadsGenerated: data.leadsGenerated,
         salesCount: data.salesCount,
+        channelId: Number(data.canalId),
         productsSold: data.productsSold,
       },
     })

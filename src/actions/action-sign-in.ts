@@ -44,6 +44,7 @@ export async function signInWithCredentials(schema: SignInSchema) {
 
     return { code: 200, message: 'Sign-in successful' }
   } catch (error: any) {
+    console.log(error)
     return {
       code: 500,
       error: 'Internal error occurred during sign-in',

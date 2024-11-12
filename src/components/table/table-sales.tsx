@@ -52,7 +52,7 @@ export async function TableSales() {
                 {current.salesCount}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
-                {formatReal(current.productsSold)}
+                {current.productsSold}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
                 {current.conversionRate.toFixed(2)}%

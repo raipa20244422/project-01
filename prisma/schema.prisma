@@ -42,6 +42,8 @@ model Sale {
   leadsGenerated Int // Quantidade de leads gerados
   salesCount     Int // Número de vendas
   productsSold   Int // Quantidade de produtos vendidos
+  channel        Channel      @relation(fields: [channelId], references: [id]) // Relacionamento opcional com Canal
+  channelId      Int
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId Int
   createdAt      DateTime     @default(now())
@@ -84,6 +86,8 @@ model Goal {
   mesMeta          DateTime
   organization     Organization @relation(fields: [organizationId], references: [id])
   organizationId   Int // Relacionamento com a organização que possui essa meta
+  channel          Channel?     @relation(fields: [channelId], references: [id]) // Relacionamento opcional com Canal
+  channelId        Int?
 
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @default(now()) @updatedAt
@@ -105,6 +109,8 @@ model Channel {
   organizationId        Int
   ChannelToCollaborator ChannelToCollaborator[]
   CollaboratorItem      CollaboratorItem[]
+  Goal                  Goal[]
+  Sale                  Sale[]
 }
 
 model ChannelToCollaborator {
