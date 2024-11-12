@@ -123,6 +123,7 @@ export function FormGoal({ create, id, children }: FormGoalProps) {
   }
 
   useEffect(() => {
+    setSelectedFields([])
     fetchChannels()
     if (id && isOpen) {
       startTransition(async () => {
