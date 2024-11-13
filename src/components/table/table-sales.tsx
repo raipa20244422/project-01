@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table'
 import { formatDate, formatReal } from '@/utils/format-all'
 
+import { ButtonDeleteSales } from '../button-delete-sales'
 import { EmptySales } from '../empty-table/empty-sales'
 import { FormSale } from '../form-sales'
 import { Button } from '../ui/button'
@@ -33,7 +34,8 @@ export async function TableSales() {
             <TableHead className='w-20'>Total de Produtos</TableHead>
             <TableHead className='w-20'>Taxa de Conversão</TableHead>
             <TableHead className='w-20'>Data</TableHead>
-            <TableHead className='w-20'>Ações</TableHead>
+            <TableHead className='w-20'>Editar</TableHead>
+            <TableHead className='w-20'>Deletar</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,6 +74,9 @@ export async function TableSales() {
                     ...
                   </Button>
                 </FormSale>
+              </TableCell>
+              <TableCell className='h-5 w-20 text-nowrap text-xs text-gray-500'>
+                <ButtonDeleteSales id={current.id} />
               </TableCell>
             </TableRow>
           ))}

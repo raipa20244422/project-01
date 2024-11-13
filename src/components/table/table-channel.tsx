@@ -8,6 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import { ButtonDeleteChannel } from '../button-delete'
 import { EmptyChannel } from '../empty-table/empty-channel'
 import { FormChannel } from '../form-channel'
 import { Button } from '../ui/button'
@@ -27,7 +28,8 @@ export async function TableChannels() {
           <TableRow>
             <TableHead className='w-96'>Canal ID</TableHead>
             <TableHead className='w-96'>Nome</TableHead>
-            <TableHead className='w-96'>Opções</TableHead>
+            <TableHead className='w-96'>Editar</TableHead>
+            <TableHead className='w-96'>Deletar</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -51,6 +53,9 @@ export async function TableChannels() {
                     ...
                   </Button>
                 </FormChannel>
+              </TableCell>
+              <TableCell className='h-5 w-20 text-xs text-gray-500'>
+                <ButtonDeleteChannel id={channel.id} />
               </TableCell>
             </TableRow>
           ))}

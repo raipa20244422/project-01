@@ -24,7 +24,7 @@ model Organization {
   email         String         @unique
   password      String
   isActive      Boolean
-  owner         User           @relation(fields: [ownerId], references: [id])
+  owner         User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId       Int
   sales         Sale[]
   collaborators Collaborator[]
@@ -36,15 +36,15 @@ model Organization {
 
 model Sale {
   id             Int          @id @default(autoincrement())
-  month          DateTime // Armazena apenas mês/ano
-  investment     Float // Valor investido
-  revenue        Float // Faturamento
-  leadsGenerated Int // Quantidade de leads gerados
-  salesCount     Int // Número de vendas
-  productsSold   Int // Quantidade de produtos vendidos
-  channel        Channel      @relation(fields: [channelId], references: [id]) // Relacionamento opcional com Canal
+  month          DateTime
+  investment     Float
+  revenue        Float
+  leadsGenerated Int
+  salesCount     Int
+  productsSold   Int
+  channel        Channel      @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId      Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId Int
   createdAt      DateTime     @default(now())
   Goal           Goal[]
@@ -53,7 +53,7 @@ model Sale {
 model Collaborator {
   id                    Int                     @id @default(autoincrement())
   name                  String
-  organization          Organization            @relation(fields: [organizationId], references: [id])
+  organization          Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId        Int
   createdAt             DateTime                @default(now())
   items                 CollaboratorItem[]
@@ -63,38 +63,37 @@ model Collaborator {
 
 model CollaboratorItem {
   id             Int          @id @default(autoincrement())
-  leadsGenerated Int // Quantidade de leads gerados
-  salesCount     Int // Número de vendas realizadas
-  productsSold   Int // Quantidade de produtos vendidos
-  revenue        Float // Faturamento
-  investedAmount Float // Valor investido
+  leadsGenerated Int
+  salesCount     Int
+  productsSold   Int
+  revenue        Float
+  investedAmount Float
   channelId      Int?
-  channel        Channel?     @relation(fields: [channelId], references: [id])
-  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
+  channel        Channel?     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
   collaboratorId Int
   createdAt      DateTime     @default(now())
 }
 
 model Goal {
-  id               Int          @id @default(autoincrement())
-  goalType         GoalType // Tipo de Meta: Vendas ou Colaborador
-  valorInvestido   Float // Valor Investido
-  faturamento      Float // Faturamento
-  ledsGerados      Int // Quantidade de LEDs Gerados
-  numeroVendas     Int // Número de Vendas
-  produtosVendidos Int // Quantidade de Produtos Vendidos
+  id               Int           @id @default(autoincrement())
+  goalType         GoalType
+  valorInvestido   Float
+  faturamento      Float
+  ledsGerados      Int
+  numeroVendas     Int
+  produtosVendidos Int
   mesMeta          DateTime
-  organization     Organization @relation(fields: [organizationId], references: [id])
-  organizationId   Int // Relacionamento com a organização que possui essa meta
-  channel          Channel?     @relation(fields: [channelId], references: [id]) // Relacionamento opcional com Canal
+  organization     Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId   Int
+  channel          Channel?      @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId        Int?
-
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @default(now()) @updatedAt
-  Sale           Sale?         @relation(fields: [saleId], references: [id])
-  saleId         Int?
-  Collaborator   Collaborator? @relation(fields: [collaboratorId], references: [id])
-  collaboratorId Int?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @default(now()) @updatedAt
+  Sale             Sale?         @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  saleId           Int?
+  Collaborator     Collaborator? @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
+  collaboratorId   Int?
 }
 
 enum GoalType {
@@ -105,7 +104,7 @@ enum GoalType {
 model Channel {
   id                    Int                     @id @default(autoincrement())
   name                  String
-  organization          Organization            @relation(fields: [organizationId], references: [id])
+  organization          Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId        Int
   ChannelToCollaborator ChannelToCollaborator[]
   CollaboratorItem      CollaboratorItem[]
@@ -115,14 +114,14 @@ model Channel {
 
 model ChannelToCollaborator {
   id             Int          @id @default(autoincrement())
-  month          DateTime // Armazena o mês/ano
-  leadsGenerated Int // Quantidade de leads gerados nesse canal pelo colaborador
-  salesCount     Int // Número de vendas realizadas nesse canal pelo colaborador
-  productsSold   Int // Quantidade de produtos vendidos nesse canal pelo colaborador
-  revenue        Float // Faturamento gerado nesse canal pelo colaborador
-  channel        Channel      @relation(fields: [channelId], references: [id])
+  month          DateTime
+  leadsGenerated Int
+  salesCount     Int
+  productsSold   Int
+  revenue        Float
+  channel        Channel      @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId      Int
-  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
+  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id], onDelete: Cascade)
   collaboratorId Int
   createdAt      DateTime     @default(now())
 }

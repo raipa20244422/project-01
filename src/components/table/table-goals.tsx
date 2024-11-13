@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table'
 import { formatDate, formatReal } from '@/utils/format-all'
 
+import { ButtonDeleteGoals } from '../button-delete-goals'
 import { EmptyGoals } from '../empty-table/empty-goals'
 import { FormGoal } from '../form-goals'
 import { Button } from '../ui/button'
@@ -34,7 +35,8 @@ export async function TableGoals() {
             <TableHead className='w-36'>Número de Vendas</TableHead>
             <TableHead className='w-36'>Produtos Vendidos</TableHead>
             <TableHead className='w-36'>Data</TableHead>
-            <TableHead className='w-24'>Opções</TableHead>
+            <TableHead className='w-24'>Editar</TableHead>
+            <TableHead className='w-24'>Deletar</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -76,6 +78,9 @@ export async function TableGoals() {
                     ...
                   </Button>
                 </FormGoal>
+              </TableCell>
+              <TableCell className='h-5 w-36 text-xs font-medium text-gray-500'>
+                <ButtonDeleteGoals id={goal.id} />
               </TableCell>
             </TableRow>
           ))}

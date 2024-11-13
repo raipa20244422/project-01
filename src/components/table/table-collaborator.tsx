@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table'
 import { formatReal } from '@/utils/format-all'
 
+import { ButtonDeleteCollaborator } from '../button-delete-collaborator'
 import { EmptyCollaborator } from '../empty-table/empty-collaborator'
 import { FormCollaborator } from '../form-collaborator'
 import { Button } from '../ui/button'
@@ -33,7 +34,8 @@ export async function TableCollaborator() {
             <TableHead className='w-20'>Vendas</TableHead>
             <TableHead className='w-20'>Produtos Vendidos</TableHead>
             <TableHead className='w-20'>Faturamento</TableHead>
-            <TableHead className='w-20'>Ações</TableHead>
+            <TableHead className='w-20'>Editar</TableHead>
+            <TableHead className='w-20'>Deletar</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -66,6 +68,9 @@ export async function TableCollaborator() {
                     ...
                   </Button>
                 </FormCollaborator>
+              </TableCell>
+              <TableCell className='h-5 w-20 text-xs text-gray-500'>
+                <ButtonDeleteCollaborator id={current.id} />
               </TableCell>
             </TableRow>
           ))}

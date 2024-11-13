@@ -165,6 +165,7 @@ export function FormSale({ create, id, children }: FormSaleProps) {
         setChannels(responseChannel.channels)
       }
     }
+
     fetchChannels()
 
     if (!create && id && isOpen) {
