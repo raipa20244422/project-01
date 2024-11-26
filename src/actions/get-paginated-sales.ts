@@ -61,6 +61,7 @@ export async function getPaginatedSales(
         id: true,
         createdAt: true,
         revenue: true,
+        month: true,
         productsSold: true,
         salesCount: true,
         organization: {

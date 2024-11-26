@@ -1,5 +1,5 @@
-import { ChartInvestmentsChannels } from '@/components/chart-investiment-channel'
 import { FaturamentoMensal } from '@/components/faturamento-mensal'
+import { QtdeSalesofMoth } from '@/components/QtdeSalesofMoth'
 import {
   Card,
   CardContent,
@@ -45,6 +45,7 @@ export default async function Home() {
     atingimentoMetas,
     vendedores,
     vendasPorCanal,
+    vendasMensais,
     topVendedores,
   } = dashboardData
 
@@ -120,7 +121,10 @@ export default async function Home() {
           trend={trend}
           trendValue={trendValue}
         />
-        <ChartInvestmentsChannels data={vendasPorCanal} />
+        <QtdeSalesofMoth
+          salesData={salesData}
+          title='Quantidade de Vendas Mensais'
+        />
       </div>
 
       {/* Tabelas em Grid */}

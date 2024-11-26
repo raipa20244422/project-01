@@ -289,6 +289,57 @@ export function calculateDashboardData({
     },
   )
 
+  const sortedSalesData = salesData.sort(
+    (a, b) => a.month.getTime() - b.month.getTime(),
+  )
+
+  // Calcular vendas mensais com crescimento
+  const vendasMensais = sortedSalesData.map((sale, index) => {
+    const mesAnterior = index > 0 ? sortedSalesData[index - 1] : null
+
+    let crescimentoFaturamento = 'N/A'
+    let crescimentoVendas = 'N/A'
+    let crescimentoInvestimento = 'N/A'
+
+    if (mesAnterior) {
+      crescimentoFaturamento =
+        mesAnterior.revenue > 0
+          ? (
+              ((sale.revenue - mesAnterior.revenue) / mesAnterior.revenue) *
+              100
+            ).toFixed(2) + '%'
+          : 'N/A'
+
+      crescimentoVendas =
+        mesAnterior.salesCount > 0
+          ? (
+              ((sale.salesCount - mesAnterior.salesCount) /
+                mesAnterior.salesCount) *
+              100
+            ).toFixed(2) + '%'
+          : 'N/A'
+
+      crescimentoInvestimento =
+        mesAnterior.investment > 0
+          ? (
+              ((sale.investment - mesAnterior.investment) /
+                mesAnterior.investment) *
+              100
+            ).toFixed(2) + '%'
+          : 'N/A'
+    }
+
+    return {
+      mes: sale.month,
+      faturamento: sale.revenue,
+      qtdVendas: sale.salesCount,
+      valorInvestido: sale.investment,
+      crescimentoFaturamento,
+      crescimentoVendas,
+      crescimentoInvestimento,
+    }
+  })
+
   return {
     totalRevenue,
     totalSalesCount,
@@ -299,6 +350,7 @@ export function calculateDashboardData({
     vendasPorCanal,
     topVendedores,
     salesData,
+    vendasMensais,
   }
 }
 

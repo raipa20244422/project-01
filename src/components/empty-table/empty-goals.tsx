@@ -8,10 +8,16 @@ export function EmptyGoals() {
       <Table className='border-none'>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-96'>Nome</TableHead>
-            <TableHead className='w-96'>Leads Gerados</TableHead>
-            <TableHead className='w-96'>Data</TableHead>
-            <TableHead className='w-20'>Ações</TableHead>
+            <TableHead className='w-36'>Meta ID</TableHead>
+            <TableHead className='w-36'>Tipo de Meta</TableHead>
+            <TableHead className='w-36'>Valor Investido</TableHead>
+            <TableHead className='w-36'>Faturamento</TableHead>
+            <TableHead className='w-36'>Leads Convertidos</TableHead>
+            <TableHead className='w-36'>Número de Vendas</TableHead>
+            <TableHead className='w-36'>Produtos Vendidos</TableHead>
+            <TableHead className='w-36'>Data</TableHead>
+            <TableHead className='w-24'>Editar</TableHead>
+            <TableHead className='w-24'>Deletar</TableHead>
           </TableRow>
         </TableHeader>
       </Table>

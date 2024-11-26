@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { watch } from 'fs'
 import { CalendarIcon, XIcon } from 'lucide-react'
 import { ReactNode, useEffect, useState, useTransition } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -62,7 +63,9 @@ const goalSchema = z.object({
     .number()
     .min(0, 'A quantidade de produtos vendidos deve ser positiva')
     .default(0),
-  canalMeta: z.string({ required_error: 'Informar o canal é obrigatório' }),
+  canalMeta: z
+    .string({ required_error: 'Informar o canal é obrigatório' })
+    .optional(),
 })
 
 export type GoalFormData = z.infer<typeof goalSchema>
@@ -101,6 +104,7 @@ export function FormGoal({ create, id, children }: FormGoalProps) {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
     control,
     setValue,
   } = useForm<GoalFormData>({
@@ -224,9 +228,9 @@ export function FormGoal({ create, id, children }: FormGoalProps) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectItem value='SALES'>Metas de Vendas</SelectItem>
+                        <SelectItem value='SALES'>Metas Geral</SelectItem>
                         <SelectItem value='COLLABORATOR'>
-                          Metas de Colaborador
+                          Metas de vendedor
                         </SelectItem>
                       </SelectGroup>
                     </SelectContent>
@@ -238,44 +242,48 @@ export function FormGoal({ create, id, children }: FormGoalProps) {
               )}
             </div>
 
-            {/* Canal da Meta */}
-            <div className='flex flex-col items-center space-x-2 space-y-1'>
-              <Label
-                htmlFor='canalMeta'
-                className='ml-2 self-start'
-              >
-                Canal da Meta
-              </Label>
-              <Controller
-                control={control}
-                name='canalMeta'
-                render={({ field: { onChange, value } }) => (
-                  <Select
-                    value={value}
-                    onValueChange={onChange}
+            {watch('goalType') === 'COLLABORATOR' && (
+              <>
+                {/* Canal da Meta */}
+                <div className='flex flex-col items-center space-x-2 space-y-1'>
+                  <Label
+                    htmlFor='canalMeta'
+                    className='ml-2 self-start'
                   >
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder='Selecione o canal da meta' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {channels.map((channel) => (
-                          <SelectItem
-                            key={channel.id}
-                            value={String(channel.id)}
-                          >
-                            {channel.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.canalMeta && (
-                <MessageError>{errors.canalMeta.message}</MessageError>
-              )}
-            </div>
+                    Canal da Meta
+                  </Label>
+                  <Controller
+                    control={control}
+                    name='canalMeta'
+                    render={({ field: { onChange, value } }) => (
+                      <Select
+                        value={value}
+                        onValueChange={onChange}
+                      >
+                        <SelectTrigger className='w-full'>
+                          <SelectValue placeholder='Selecione o canal da meta' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {channels.map((channel) => (
+                              <SelectItem
+                                key={channel.id}
+                                value={String(channel.id)}
+                              >
+                                {channel.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.canalMeta && (
+                    <MessageError>{errors.canalMeta.message}</MessageError>
+                  )}
+                </div>
+              </>
+            )}
 
             {/* Mês da Meta */}
             <div className='flex flex-col items-center space-x-2 space-y-1'>

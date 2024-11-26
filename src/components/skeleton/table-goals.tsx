@@ -19,7 +19,7 @@ export function SkeletonTableGoals() {
             <TableHead className='w-36'>Tipo de Meta</TableHead>
             <TableHead className='w-36'>Valor Investido</TableHead>
             <TableHead className='w-36'>Faturamento</TableHead>
-            <TableHead className='w-36'>LEDs Gerados</TableHead>
+            <TableHead className='w-36'>Leads Convertidos</TableHead>
             <TableHead className='w-36'>Número de Vendas</TableHead>
             <TableHead className='w-36'>Produtos Vendidos</TableHead>
             <TableHead className='w-36'>Data</TableHead>

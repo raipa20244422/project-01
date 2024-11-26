@@ -14,7 +14,7 @@ export function EmptySales() {
             <TableHead className='w-20'>Numero de Vendas</TableHead>
             <TableHead className='w-20'>Total de Produtos</TableHead>
             <TableHead className='w-20'>Taxa de Conversão</TableHead>
-            <TableHead className='w-20'>Data</TableHead>
+            <TableHead className='w-20'>Criação</TableHead>
             <TableHead className='w-20'>Ações</TableHead>
           </TableRow>
         </TableHeader>

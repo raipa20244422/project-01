@@ -8,6 +8,10 @@ const protectedRoutes = [
   '/requests',
   '/catalog',
   '/account',
+  '/channel-sales',
+  '/channels',
+  '/colaboradores',
+  '/goal',
 ]
 
 export function middleware(request: NextRequest) {
@@ -34,6 +38,11 @@ export const config = {
     '/appointments/:path*',
     '/requests/:path*',
     '/catalog/:path*',
+    '/account',
+    '/channel-sales',
+    '/channels',
+    '/colaboradores',
+    '/goal',
     '/collaborator',
     '/collaborator/:path*',
     '/sign-in',

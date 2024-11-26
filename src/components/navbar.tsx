@@ -34,6 +34,7 @@ export async function Sidebar() {
           className='h-8 w-8 object-cover'
           priority
         />
+        <p className='font-nome1 text-2xl'>Fran Sfaciotte</p>
       </div>
       <div className='flex items-center space-x-4'>
         <Bell className='h-5 w-5 text-zinc-600' />
