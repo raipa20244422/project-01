@@ -83,7 +83,7 @@ interface FormGoalProps {
 const fieldOptions = [
   { label: 'Valor Investido', value: 'valorInvestido' },
   { label: 'Faturamento', value: 'faturamento' },
-  { label: 'LEDs Gerados', value: 'ledsGerados' },
+  { label: 'Leads Convertidos', value: 'ledsGerados' },
   { label: 'Número de Vendas', value: 'numeroVendas' },
   { label: 'Produtos Vendidos', value: 'produtosVendidos' },
 ]

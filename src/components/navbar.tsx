@@ -27,15 +27,11 @@ export async function Sidebar() {
     <nav className='flex items-center justify-between border-b px-6 py-3'>
       <div className='flex items-center space-x-1'>
         <Image
-          src={Logo}
-          alt='log'
-          className='h-7 w-7'
-          priority
-        />
-        <Image
-          src={Name}
+          src={'/imagee.PNG'}
           alt='name'
-          className='h-5 w-40'
+          width={300}
+          height={300}
+          className='h-8 w-8 object-cover'
           priority
         />
       </div>

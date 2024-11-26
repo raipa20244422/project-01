@@ -63,8 +63,8 @@ export function ChartInvestmentsChannels({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Investimentos por Canal</CardTitle>
-        <CardDescription>Canais de Venda</CardDescription>
+        <CardTitle>Vendas por mês</CardTitle>
+        <CardDescription>Vendas</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

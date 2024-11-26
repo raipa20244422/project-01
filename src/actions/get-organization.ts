@@ -40,6 +40,6 @@ export async function getCurrentOrganization() {
     return { success: true, organization }
   } catch (error) {
     console.error('Erro ao buscar a organização:', error)
-    redirect('/api/clear-token')
+    //redirect('/api/clear-token')
   }
 }
