@@ -8,7 +8,7 @@ import { prisma } from '@/service/prisma-client'
 import { getOrganizationIdFromJWT } from './get-organization-token'
 
 export async function createCollaboratorAction(
-  data: CollaboratorFormData & { items: ItemData[] },
+  payload: CollaboratorFormData & { items: ItemData[] },
 ) {
   try {
     const organizationId = getOrganizationIdFromJWT()
@@ -20,12 +20,13 @@ export async function createCollaboratorAction(
       }
     }
 
-    const { name, items } = data
+    const { name, items, data } = payload
 
     const collaborator = await prisma.collaborator.create({
       data: {
         name,
         organizationId,
+        data: data,
         items: {
           create: items.map((item) => ({
             channelId: item.channelId || 0,
@@ -53,7 +54,7 @@ export async function createCollaboratorAction(
 
 export async function updateCollaboratorAction(
   id: number,
-  data: CollaboratorFormData & { items: ItemData[] },
+  payload: CollaboratorFormData & { items: ItemData[] },
 ) {
   try {
     const organizationId = getOrganizationIdFromJWT()
@@ -83,7 +84,7 @@ export async function updateCollaboratorAction(
       }
     }
 
-    const { name, items } = data
+    const { name, items, data } = payload
 
     const existingItemIds = existingCollaborator.items.map((item) => item.id)
     const sentItems = items || []
@@ -100,7 +101,7 @@ export async function updateCollaboratorAction(
       // Atualiza o nome do colaborador
       await prisma.collaborator.update({
         where: { id },
-        data: { name },
+        data: { name, data },
       })
 
       // Exclui os itens que não estão na lista enviada

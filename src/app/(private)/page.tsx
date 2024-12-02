@@ -49,12 +49,13 @@ export default async function Home({
 
   if (!filteredData || !completeData) return null
 
-  const { salesData: filteredSalesData, goals } = filteredData
   const {
-    salesData: completeSalesData,
+    salesData: filteredSalesData,
     collaborators,
+    goals,
     collaboratorItems,
-  } = completeData
+  } = filteredData
+  const { salesData: completeSalesData } = completeData
 
   // Cálculos principais
   const totalRevenue = calculateTotalRevenue(filteredSalesData)

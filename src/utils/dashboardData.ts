@@ -83,15 +83,15 @@ export async function fetchFilteredData(year: number, month: number) {
   })
 
   const collaborators: Collaborator[] = await prisma.collaborator.findMany({
-    where: { organizationId },
+    where: {
+      organizationId,
+      data: {
+        gte: startDate,
+        lt: endDate,
+      },
+    },
     include: {
       items: {
-        where: {
-          createdAt: {
-            gte: startDate,
-            lt: endDate,
-          },
-        },
         include: {
           channel: true,
         },
@@ -102,10 +102,12 @@ export async function fetchFilteredData(year: number, month: number) {
   const collaboratorItems: CollaboratorItem[] =
     await prisma.collaboratorItem.findMany({
       where: {
-        collaborator: { organizationId },
-        createdAt: {
-          gte: startDate,
-          lt: endDate,
+        collaborator: {
+          organizationId,
+          data: {
+            gte: startDate,
+            lt: endDate,
+          },
         },
       },
       include: { channel: true },

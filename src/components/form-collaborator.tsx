@@ -1,7 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { CalendarIcon } from 'lucide-react'
 import { ReactNode, useEffect, useState, useTransition } from 'react'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -11,6 +15,7 @@ import {
   getCollaboratorById,
   updateCollaboratorAction,
 } from '@/actions/create-collaborator'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogContent,
@@ -19,6 +24,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -36,6 +46,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 import { CurrencyInput } from './currency-input'
 import { Button } from './ui/button'
@@ -44,7 +55,8 @@ import { Label } from './ui/label'
 
 // Schema do formulário
 const collaboratorSchema = z.object({
-  name: z.string().min(1, 'O nome é obrigatório'),
+  name: z.string({ required_error: 'O nome é obrigatório' }),
+  data: z.date({ required_error: 'Adicione a data de entrada.' }),
 })
 
 export type CollaboratorFormData = z.infer<typeof collaboratorSchema>
@@ -71,6 +83,7 @@ export function FormCollaborator({
   children,
 }: FormCollaboratorProps) {
   const [isPending, startTransition] = useTransition()
+  const [date, setDate] = useState<Date>()
   const [isOpen, setOpen] = useState(false)
   const [items, setItems] = useState<ItemData[]>([])
   const [channels, setChannels] = useState<{ id: number; name: string }[]>([])
@@ -90,6 +103,7 @@ export function FormCollaborator({
     formState: { errors },
     reset,
     register,
+    watch,
     setValue,
   } = useForm<CollaboratorFormData>({
     resolver: zodResolver(collaboratorSchema),
@@ -126,6 +140,8 @@ export function FormCollaborator({
           if (collaborator) {
             setValue('name', collaborator.name)
             setItems(collaborator.items)
+            setValue('data', collaborator.data)
+            setDate(new Date(collaborator.data))
           }
         }
       }
@@ -134,18 +150,19 @@ export function FormCollaborator({
   }, [create, id, setValue])
 
   const addNewItem = () => {
-    setItems((prevItems) => [
-      ...prevItems,
-      {
-        id: undefined,
-        channelId: null,
-        leadsGenerated: 0,
-        salesCount: 0,
-        productsSold: 0,
-        revenue: 0,
-        investedAmount: 0,
-      },
-    ])
+    if (watch('name').length > 0)
+      setItems((prevItems) => [
+        ...prevItems,
+        {
+          id: undefined,
+          channelId: null,
+          leadsGenerated: 0,
+          salesCount: 0,
+          productsSold: 0,
+          revenue: 0,
+          investedAmount: 0,
+        },
+      ])
   }
 
   const removeItem = (index: number) => {
@@ -180,15 +197,56 @@ export function FormCollaborator({
 
         <div className='grid grid-cols-1 gap-4 overflow-hidden'>
           <div className='flex flex-col space-y-2 p-2'>
-            <div className='flex flex-col space-y-1'>
-              <Label>Colaborador</Label>
-              <Input
-                {...register('name')}
-                placeholder='Colaborador'
-              />
-              {errors.name && (
-                <p className='text-sm text-red-500'>{errors.name.message}</p>
-              )}
+            <div className='flex items-center space-x-2'>
+              <div className='flex w-full flex-col space-y-1'>
+                <Label>Colaborador</Label>
+                <Input
+                  {...register('name')}
+                  placeholder='Colaborador'
+                />
+                {errors.name && (
+                  <p className='text-sm text-red-500'>{errors.name.message}</p>
+                )}
+              </div>
+
+              <div className='flex flex-col space-y-1'>
+                <Label>Data</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={'outline'}
+                      className={cn(
+                        'w-[240px] justify-start text-left font-normal',
+                        !date && 'text-muted-foreground',
+                      )}
+                    >
+                      <CalendarIcon />
+                      {date ? (
+                        format(date, 'PPP', { locale: ptBR })
+                      ) : (
+                        <span>Selecione a data</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className='w-auto p-0'
+                    align='start'
+                  >
+                    <Calendar
+                      mode='single'
+                      selected={date}
+                      onSelect={(e) => {
+                        if (e) setValue('data', e)
+                        setDate(e)
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                {errors.data && (
+                  <p className='text-sm text-red-500'>{errors.data.message}</p>
+                )}
+              </div>
             </div>
             <Button onClick={addNewItem}>Adicionar Item</Button>
 

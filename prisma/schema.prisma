@@ -55,6 +55,7 @@ model Collaborator {
   name                  String
   organization          Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId        Int
+  data                  DateTime
   createdAt             DateTime                @default(now())
   items                 CollaboratorItem[]
   Goal                  Goal[]
