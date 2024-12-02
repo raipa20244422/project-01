@@ -85,21 +85,7 @@ export function FaturamentoMensal({
                 dataKey='value'
                 fill='var(--color-value)'
                 radius={8}
-              >
-                <LabelList
-                  dataKey='value'
-                  position='top'
-                  offset={12}
-                  className='fill-foreground'
-                  fontSize={12}
-                  formatter={(value: number) =>
-                    value.toLocaleString('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                    })
-                  }
-                />
-              </Bar>
+              ></Bar>
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
