@@ -1,4 +1,5 @@
 import { FaturamentoMensal } from '@/components/faturamento-mensal'
+import { FilterSearch } from '@/components/filter-date'
 import { QtdeSalesofMoth } from '@/components/QtdeSalesofMoth'
 import {
   Card,
@@ -16,44 +17,71 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
-  calculateDashboardData,
+  calculateMetaAchievement,
+  calculateTicketMedio,
+  calculateTopVendedores,
+  calculateTotalInvestment,
+  calculateTotalRevenue,
+  calculateTotalSalesCount,
+  calculateVendasMensais,
+  calculateVendasPorCanal,
+  calculateVendedores,
   fetchData,
+  fetchFilteredData,
   prepareChartData,
 } from '@/utils/dashboardData'
 import { formatReal } from '@/utils/format-all'
 
-export default async function Home() {
-  const data = await fetchData()
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { year?: string; month?: string }
+}) {
+  const year = parseInt(searchParams.year || `${new Date().getFullYear()}`, 10)
+  const month = parseInt(
+    searchParams.month || `${new Date().getMonth() + 1}`,
+    10,
+  )
 
-  if (!data) return null
+  const filteredData = await fetchFilteredData(year, month)
 
-  const { salesData, collaborators, collaboratorItems, goals, organizationId } =
-    data
+  const completeData = await fetchData()
 
-  const dashboardData = calculateDashboardData({
-    salesData,
-    collaborators,
-    collaboratorItems,
-    goals,
-  })
+  if (!filteredData || !completeData) return null
+
+  const { salesData: filteredSalesData, goals } = filteredData
 
   const {
+    salesData: completeSalesData,
+    collaborators,
+    collaboratorItems,
+  } = completeData
+
+  const totalRevenue = calculateTotalRevenue(filteredSalesData)
+  const totalSalesCount = calculateTotalSalesCount(filteredSalesData)
+  const totalInvestment = calculateTotalInvestment(filteredSalesData)
+  const ticketMedio = calculateTicketMedio(totalRevenue, totalSalesCount)
+  const atingimentoMetas = calculateMetaAchievement(
+    goals,
     totalRevenue,
     totalSalesCount,
     totalInvestment,
-    ticketMedio,
-    atingimentoMetas,
-    vendedores,
-    vendasPorCanal,
-    vendasMensais,
-    topVendedores,
-  } = dashboardData
+  )
 
-  const chartInfo = prepareChartData(salesData)
+  const vendasMensais = calculateVendasMensais(completeSalesData)
+  const chartInfo = prepareChartData(completeSalesData)
   const { chartData, trendValue, trend } = chartInfo
+  const vendedores = calculateVendedores(collaborators, goals)
+  const vendasPorCanal = calculateVendasPorCanal(collaboratorItems, goals)
+  const topVendedores = calculateTopVendedores(vendedores)
 
   return (
-    <main className='flex min-h-screen w-full flex-col space-y-10 p-4'>
+    <main className='flex min-h-screen w-full flex-col space-y-3 p-4'>
+      <div className='flex w-full items-center justify-end'>
+        <FilterSearch />
+      </div>
+
+      {/* Cards */}
       <div className='grid w-full grid-cols-1 gap-4 md:grid-cols-5'>
         <Card>
           <CardHeader>
@@ -117,17 +145,17 @@ export default async function Home() {
         <FaturamentoMensal
           data={chartData}
           title='Faturamento Mensal'
-          description='Últimos 6 meses'
+          description='Ultimo ano'
           trend={trend}
           trendValue={trendValue}
         />
         <QtdeSalesofMoth
-          salesData={salesData}
+          salesData={completeSalesData}
           title='Quantidade de Vendas Mensais'
         />
       </div>
 
-      {/* Tabelas em Grid */}
+      {/* Tabelas */}
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
         {/* Tabela de Vendedores */}
         <Card>
