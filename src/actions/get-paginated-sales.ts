@@ -11,7 +11,6 @@ interface PaginatedSalesResponse {
     amount: number
     productsSold: number
     salesCount: number
-    name: string
     conversionRate: number
   }[]
   totalSales: number
@@ -84,7 +83,6 @@ export async function getPaginatedSales(
       amount: sale.revenue,
       productsSold: sale.productsSold,
       salesCount: sale.salesCount,
-      name: sale.organization.name,
       conversionRate:
         sale.salesCount > 0 ? sale.leadsGenerated / sale.salesCount : 0,
     }))

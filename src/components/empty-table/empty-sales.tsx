@@ -9,7 +9,6 @@ export function EmptySales() {
         <TableHeader>
           <TableRow>
             <TableHead className='w-96'>Venda ID</TableHead>
-            <TableHead className='w-20'>Nome</TableHead>
             <TableHead className='w-20'>Faturamento</TableHead>
             <TableHead className='w-20'>Numero de Vendas</TableHead>
             <TableHead className='w-20'>Total de Produtos</TableHead>
