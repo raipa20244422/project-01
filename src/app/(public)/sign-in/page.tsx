@@ -67,12 +67,6 @@ export default function SignIn() {
               <MessageError>{errors.password.message}</MessageError>
             )}
           </div>
-          <Link
-            href={''}
-            className='text-sm text-blue-500'
-          >
-            Esqueceu a senha ?
-          </Link>
         </div>
 
         <Button

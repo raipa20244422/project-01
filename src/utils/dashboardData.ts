@@ -370,3 +370,13 @@ export function calculateVendasPorCanal(
 export function calculateTopVendedores(vendedores: Vendedor[]): Vendedor[] {
   return vendedores.sort((a, b) => b.faturamento - a.faturamento).slice(0, 5)
 }
+
+export function calculateTrendValue(
+  currentValue: number,
+  previousValue: number,
+): number {
+  if (previousValue === 0) {
+    return currentValue > 0 ? 100 : 0
+  }
+  return ((currentValue - previousValue) / previousValue) * 100
+}

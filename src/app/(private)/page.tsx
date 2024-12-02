@@ -23,6 +23,7 @@ import {
   calculateTotalInvestment,
   calculateTotalRevenue,
   calculateTotalSalesCount,
+  calculateTrendValue,
   calculateVendasMensais,
   calculateVendasPorCanal,
   calculateVendedores,
@@ -44,19 +45,18 @@ export default async function Home({
   )
 
   const filteredData = await fetchFilteredData(year, month)
-
   const completeData = await fetchData()
 
   if (!filteredData || !completeData) return null
 
   const { salesData: filteredSalesData, goals } = filteredData
-
   const {
     salesData: completeSalesData,
     collaborators,
     collaboratorItems,
   } = completeData
 
+  // Cálculos principais
   const totalRevenue = calculateTotalRevenue(filteredSalesData)
   const totalSalesCount = calculateTotalSalesCount(filteredSalesData)
   const totalInvestment = calculateTotalInvestment(filteredSalesData)
@@ -68,9 +68,37 @@ export default async function Home({
     totalInvestment,
   )
 
+  const totalRevenueCurrentMonth = calculateTotalRevenue(
+    completeSalesData.filter(
+      (sale) =>
+        new Date(sale.month).getFullYear() === year &&
+        new Date(sale.month).getMonth() === month - 1,
+    ),
+  )
+
+  const totalRevenuePreviousMonth = calculateTotalRevenue(
+    completeSalesData.filter((sale) => {
+      const saleDate = new Date(sale.month)
+      const previousMonthDate = new Date(year, month - 2)
+
+      return (
+        saleDate.getFullYear() === previousMonthDate.getFullYear() &&
+        saleDate.getMonth() === previousMonthDate.getMonth()
+      )
+    }),
+  )
+
+  const trendValue = calculateTrendValue(
+    totalRevenueCurrentMonth,
+    totalRevenuePreviousMonth,
+  )
+
+  const trend = trendValue > 0 ? 'up' : trendValue < 0 ? 'down' : 'neutral'
+
+  // Dados para gráficos e tabelas
   const vendasMensais = calculateVendasMensais(completeSalesData)
   const chartInfo = prepareChartData(completeSalesData)
-  const { chartData, trendValue, trend } = chartInfo
+  const { chartData } = chartInfo
   const vendedores = calculateVendedores(collaborators, goals)
   const vendasPorCanal = calculateVendasPorCanal(collaboratorItems, goals)
   const topVendedores = calculateTopVendedores(vendedores)
@@ -90,9 +118,17 @@ export default async function Home({
           </CardHeader>
           <CardContent>
             <p className='text-2xl font-bold'>{formatReal(totalRevenue)}</p>
-            <p className='text-sm text-green-500'>
-              {trend === 'up' ? '+' : '-'}
-              {trendValue}% em relação ao mês anterior
+            <p
+              className={`text-sm ${
+                trend === 'up'
+                  ? 'text-green-500'
+                  : trend === 'down'
+                    ? 'text-red-500'
+                    : 'text-gray-500'
+              }`}
+            >
+              {trend === 'neutral' ? '' : trend === 'up' ? '+' : '-'}
+              {Math.abs(trendValue)}% em relação ao mês anterior
             </p>
           </CardContent>
         </Card>
@@ -146,8 +182,6 @@ export default async function Home({
           data={chartData}
           title='Faturamento Mensal'
           description='Ultimo ano'
-          trend={trend}
-          trendValue={trendValue}
         />
         <QtdeSalesofMoth
           salesData={completeSalesData}
