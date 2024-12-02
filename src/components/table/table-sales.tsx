@@ -1,3 +1,6 @@
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+
 import { getPaginatedSales } from '@/actions/get-paginated-sales'
 import {
   Table,
@@ -7,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { formatDate, formatReal } from '@/utils/format-all'
+import { formatDate, formatDateString, formatReal } from '@/utils/format-all'
 
 import { ButtonDeleteSales } from '../button-delete-sales'
 import { EmptySales } from '../empty-table/empty-sales'
@@ -32,7 +35,7 @@ export async function TableSales() {
             <TableHead className='w-20'>Numero de Vendas</TableHead>
             <TableHead className='w-20'>Total de Produtos</TableHead>
             <TableHead className='w-20'>Taxa de Conversão</TableHead>
-            <TableHead className='w-20'>Criação</TableHead>
+            <TableHead className='w-20'>Data</TableHead>
             <TableHead className='w-20'>Editar</TableHead>
             <TableHead className='w-20'>Deletar</TableHead>
           </TableRow>
@@ -56,7 +59,7 @@ export async function TableSales() {
                 {current.conversionRate.toFixed(2)}%
               </TableCell>
               <TableCell className='h-5 w-20 text-nowrap text-xs text-gray-500'>
-                {formatDate(current.saleDate)}
+                {format(current.saleDate, 'MM/yyyy', { locale: ptBR })}
               </TableCell>
               <TableCell className='h-5 w-20 text-xs text-gray-500'>
                 <FormSale

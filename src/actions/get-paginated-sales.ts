@@ -79,7 +79,7 @@ export async function getPaginatedSales(
 
     const salesData = sales.map((sale) => ({
       id: sale.id,
-      saleDate: sale.createdAt,
+      saleDate: sale.month,
       amount: sale.revenue,
       productsSold: sale.productsSold,
       salesCount: sale.salesCount,
